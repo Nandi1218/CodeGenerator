@@ -12,7 +12,9 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         String input = """
-                entity User { id: Long primary generated; email: String unique; }
+                entity User {
+                        id: Long primary generated;
+                        email: String unique length(2,50); }
                 entity Product { id: Long primary generated; name: String; price: Double; }
                 entity Order {
                         id: Long primary generated;

@@ -14,6 +14,6 @@ public class <entity.name> {
 >>
 
 fieldTemplate(f) ::= <<
-    <f.annotations: {a | <a>}; separator="\n">
+    <f.modifiers: {a | <a>}; separator="\n">
     private <f.type> <f.name>;
 >>
