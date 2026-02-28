@@ -15,7 +15,7 @@ model : entity* EOF;
 entity : 'entity' ID '{' property* '}';
 property : ID ':' type modifier* ';'? ;
 type    : ID                     #SimpleType
-        | ID '[' ']'             #ArrayType
+        | ID '[' ']'             #ListType
                 ;
 modifier    : 'primary'                     #PRIMARY
             | 'generated'                   #GENERATED
