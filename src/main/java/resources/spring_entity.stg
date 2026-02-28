@@ -8,7 +8,7 @@ import java.util.*;
 @Entity
 public class <entity.name> {
 
-    <entity.fields:fieldTemplate(); separator="\n">
+    <entity.fields:fieldTemplate(); separator="\n\n">
 
 }
 >>
