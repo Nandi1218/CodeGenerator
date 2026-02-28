@@ -1,6 +1,3 @@
-// spring_entity.stg
-
-// Fő sablon az osztályhoz
 entityTemplate(entity) ::= <<
 package project.generated;
 
@@ -16,7 +13,6 @@ public class <entity.name> {
 }
 >>
 
-// Al-sablon egyetlen mezőhöz
 fieldTemplate(f) ::= <<
     <f.annotations: {a | <a>}; separator="\n">
     private <f.type> <f.name>;
