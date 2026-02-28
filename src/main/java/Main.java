@@ -4,7 +4,9 @@ import model.EntityModel;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.stringtemplate.v4.*;
 
+import java.io.File;
 import java.util.List;
 
 public class Main {
@@ -29,6 +31,24 @@ public class Main {
 
         List<EntityModel> entities = (List<EntityModel>) visitor.visit(tree);
 
+        //printToConsole(entities);
+        File file = new File("src/main/java/resources/spring_entity.stg");
+        if (!file.exists()) {
+            System.err.println("Template file not found: " + file.getAbsolutePath());
+            return;
+        }
+        STGroup group = new STGroupFile(file.getAbsolutePath());
+
+        for(var entity : entities){
+            ST st = group.getInstanceOf("entityTemplate");
+            st.add("entity", entity);
+            String generatedCode = st.render();
+            System.out.println(generatedCode);
+        }
+
+    }
+
+    private static void printToConsole(List<EntityModel> entities) {
         for (EntityModel entity : entities) {
             System.out.println("Entitás neve: " + entity.getName());
             entity.getFields().forEach(f -> {

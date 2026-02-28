@@ -1,0 +1,23 @@
+// spring_entity.stg
+
+// Fő sablon az osztályhoz
+entityTemplate(entity) ::= <<
+package project.generated;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import java.util.*;
+
+@Entity
+public class <entity.name> {
+
+    <entity.fields:fieldTemplate(); separator="\n">
+
+}
+>>
+
+// Al-sablon egyetlen mezőhöz
+fieldTemplate(f) ::= <<
+    <f.annotations: {a | <a>}; separator="\n">
+    private <f.type> <f.name>;
+>>
