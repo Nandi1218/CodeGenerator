@@ -46,9 +46,9 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
         return field;
     }
     @Override
-    public Object visitArrayType(ArrayTypeContext ctx) {
+    public Object visitListType(ListTypeContext ctx) {
         FieldModel field = new FieldModel();
-        field.setType(ctx.ID().getText()+"[]");
+        field.setType("List<"+ctx.ID().getText()+">");
         field.setArray(true);
         return field;
     }

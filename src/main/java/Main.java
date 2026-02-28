@@ -9,7 +9,6 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-
         String input = """
                 entity User { id: Long primary generated; email: String unique; }
                 entity Product { id: Long primary generated; name: String; price: Double; }
@@ -33,10 +32,9 @@ public class Main {
         for (EntityModel entity : entities) {
             System.out.println("Entitás neve: " + entity.getName());
             entity.getFields().forEach(f -> {
-                System.out.println("\t - Mező: " + f.getName() +": " + f.getType());
+                System.out.println("\t - Mező: " + f.getName() + ": " + f.getType());
                 System.out.println("\t\t   Annotációk: " + f.getModifiers());
             });
         }
-
     }
 }
