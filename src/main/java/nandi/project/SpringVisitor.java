@@ -1,7 +1,9 @@
-import generated.antlr4.EntityDSLBaseVisitor;
-import model.EntityModel;
-import model.FieldModel;
-import generated.antlr4.EntityDSLParser.*;
+package nandi.project;
+
+import nandi.project.generated.antlr4.EntityDSLBaseVisitor;
+import nandi.project.generated.antlr4.EntityDSLParser.*;
+import nandi.project.model.EntityModel;
+import nandi.project.model.FieldModel;
 
 
 import java.util.ArrayList;
@@ -62,16 +64,28 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
     public Object visitGENERATED(GENERATEDContext ctx) {
         return "@GeneratedValue(strategy = GenerationType.IDENTITY)";
     }
+    @Override
+    public Object visitREQUIRED(REQUIREDContext ctx) {
+        return "@Column(nullable = false)";
+    }
 
     @Override
     public Object visitUNIQUE(UNIQUEContext ctx) {
         return "@Column(unique = true)";
+    }
+    @Override
+    public Object visitOPTIONAL(OPTIONALContext ctx) {
+        return "@Column(nullable = true)";
     }
 
     @Override
     public Object visitMIN(MINContext ctx) {
         String value = ctx.INT().getText();
         return "@Min(" + value + ")";
+    }
+    public Object visitMAX(MAXContext ctx) {
+        String value = ctx.INT().getText();
+        return "@Max(" + value + ")";
     }
 
     @Override
@@ -80,4 +94,15 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
         String max = ctx.INT(1).getText();
         return "@Size(min = " + min + ", max = " + max + ")";
     }
+    @Override
+    public Object visitMIN_LENGTH(MIN_LENGTHContext ctx) {
+        String min = ctx.INT().getText();
+        return "@Size(min = " + min + ")";
+    }
+    @Override
+    public Object visitMAX_LENGTH(MAX_LENGTHContext ctx) {
+        String max = ctx.INT().getText();
+        return "@Size(max = " + max + ")";
+    }
+
 }
