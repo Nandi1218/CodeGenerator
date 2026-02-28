@@ -8,10 +8,11 @@ import org.stringtemplate.v4.*;
 
 import java.io.File;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String input = """
+        /*String input = """
                 entity User {
                         id: Long primary generated;
                         email: String unique length(2,50); }
@@ -21,32 +22,44 @@ public class Main {
                         user: User;
                         products: Product[]; }
                 """;
+        */
+        Scanner sc = new Scanner(System.in);
+        while(true){
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while (sc.hasNextLine()) {
+                line = sc.nextLine();
+                if(line.equalsIgnoreCase("Exit")) System.exit(0);
+                if(line.isEmpty()) break;
+                sb.append(line).append("\n");
+            }
+            String input = sb.toString();
+            EntityDSLLexer lexer = new EntityDSLLexer(CharStreams.fromString(input));
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            EntityDSLParser parser = new EntityDSLParser(tokens);
+            ParseTree tree = parser.model();
 
 
-        EntityDSLLexer lexer = new EntityDSLLexer(CharStreams.fromString(input));
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        EntityDSLParser parser = new EntityDSLParser(tokens);
-        ParseTree tree = parser.model();
+            SpringVisitor visitor = new SpringVisitor();
 
+            List<EntityModel> entities = (List<EntityModel>) visitor.visit(tree);
 
-        SpringVisitor visitor = new SpringVisitor();
+            //printToConsole(entities);
+            File file = new File("src/main/java/resources/spring_entity.stg");
+            if (!file.exists()) {
+                System.err.println("Template file not found: " + file.getAbsolutePath());
+                return;
+            }
+            STGroup group = new STGroupFile(file.getAbsolutePath());
 
-        List<EntityModel> entities = (List<EntityModel>) visitor.visit(tree);
-
-        //printToConsole(entities);
-        File file = new File("src/main/java/resources/spring_entity.stg");
-        if (!file.exists()) {
-            System.err.println("Template file not found: " + file.getAbsolutePath());
-            return;
+            for(var entity : entities){
+                ST st = group.getInstanceOf("entityTemplate");
+                st.add("entity", entity);
+                String generatedCode = st.render();
+                System.out.println(generatedCode);
+            }
         }
-        STGroup group = new STGroupFile(file.getAbsolutePath());
 
-        for(var entity : entities){
-            ST st = group.getInstanceOf("entityTemplate");
-            st.add("entity", entity);
-            String generatedCode = st.render();
-            System.out.println(generatedCode);
-        }
 
     }
 
