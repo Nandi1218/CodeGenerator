@@ -1,4 +1,4 @@
-// Generated from C:/Users/kanyi/IdeaProjects/codeGenerator/src/main/antlr4/EntityDSL.g4 by ANTLR 4.13.2
+package generated.antlr4;// Generated from C:/Users/kanyi/IdeaProjects/codeGenerator/src/main/antlr4/EntityDSL.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -38,7 +38,14 @@ public class EntityDSLBaseVisitor<T> extends AbstractParseTreeVisitor<T> impleme
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitType(EntityDSLParser.TypeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSimpleType(EntityDSLParser.SimpleTypeContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitArrayType(EntityDSLParser.ArrayTypeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

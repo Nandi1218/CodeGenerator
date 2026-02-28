@@ -1,4 +1,4 @@
-// Generated from C:/Users/kanyi/IdeaProjects/codeGenerator/src/main/antlr4/EntityDSL.g4 by ANTLR 4.13.2
+package generated.antlr4;// Generated from C:/Users/kanyi/IdeaProjects/codeGenerator/src/main/antlr4/EntityDSL.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -28,11 +28,19 @@ public interface EntityDSLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProperty(EntityDSLParser.PropertyContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link EntityDSLParser#type}.
+	 * Visit a parse tree produced by the {@code SimpleType}
+	 * labeled alternative in {@link EntityDSLParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitType(EntityDSLParser.TypeContext ctx);
+	T visitSimpleType(EntityDSLParser.SimpleTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ArrayType}
+	 * labeled alternative in {@link EntityDSLParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayType(EntityDSLParser.ArrayTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code PRIMARY}
 	 * labeled alternative in {@link EntityDSLParser#modifier}.

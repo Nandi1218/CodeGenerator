@@ -10,11 +10,13 @@ entity [Name] {
 
 
 
-// Parser rules
+// Parser szabályok
 model : entity* EOF;
 entity : 'entity' ID '{' property* '}';
 property : ID ':' type modifier* ';'? ;
-type : ID;
+type    : ID                     #SimpleType
+        | ID '[' ']'             #ArrayType
+                ;
 modifier    : 'primary'                     #PRIMARY
             | 'generated'                   #GENERATED
             | 'required'                    #REQUIRED
@@ -29,7 +31,7 @@ modifier    : 'primary'                     #PRIMARY
 //          |
             ;
 
-// Lexer rules
+// Lexer szabályok
 ID  : [a-zA-Z_][a-zA-Z0-9_]* ;
 INT : [0-9]+ ;
-WS  : [ \t\r\n]+ -> skip ;
+WS  : [ \t\r\n]+ -> skip;
