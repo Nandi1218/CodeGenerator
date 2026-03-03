@@ -87,7 +87,6 @@ public class Main {
 
         } catch (Exception e) {
             System.err.println("[ERROR] Error encountered during the processing: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }
