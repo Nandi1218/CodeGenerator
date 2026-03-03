@@ -1,3 +1,4 @@
+// --- ENTITY TEMPLATE ---
 entityTemplate(entity, pkg) ::= <<
 package <pkg>;
 
@@ -8,7 +9,7 @@ import java.util.*;
 @Entity
 public class <entity.name> {
 
-    <entity.fields:fieldTemplate(); separator="\n">
+    <entity.fields:fieldTemplate(); separator="\n\n">
 
     <entity.fields:getSetTemplate(); separator="\n">
 
@@ -26,10 +27,22 @@ getSetTemplate(f) ::= <<
     }
 
 <if(f.isArray)>
-    // Itt nem generálunk setter-t, vagy mást csinálunk
 <else>
     public void set<f.capName>(<f.type> <f.name>) {
         this.<f.name> = <f.name>;
     }
 <endif>
+>>
+
+// --- REPOSITORY TEMPLATE ---
+repositoryTemplate(entity, pkg) ::= <<
+package <pkg>.repository;
+
+import <pkg>.model.<entity.name>;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface <entity.name>Repository extends JpaRepository\<<entity.name>, <entity.keyType>\> {
+}
 >>
