@@ -11,7 +11,7 @@ public class FieldModel {
     private String name;
     private String type;
     private boolean isArray;
-    private List<String> modifiers = new ArrayList<>();
+    private final List<String> modifiers = new ArrayList<>();
 
     /**
      * Returns the field name.
@@ -84,4 +84,5 @@ public class FieldModel {
     public String getCapitalName() {
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
+
 }

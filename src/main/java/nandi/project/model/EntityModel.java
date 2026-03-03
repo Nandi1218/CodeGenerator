@@ -8,7 +8,8 @@ import java.util.List;
  */
 public class EntityModel {
     private String name;
-    private List<FieldModel> fields = new ArrayList<>();
+    private final List<FieldModel> fields = new ArrayList<>();
+
 
     /**
      * Returns the entity name.
@@ -36,13 +37,7 @@ public class EntityModel {
     public List<FieldModel> getFields() {
         return fields;
     }
-
-    /**
-     * Replaces the list of entity fields.
-     *
-     * @param fields field models
-     */
-    public void setFields(List<FieldModel> fields) {
-        this.fields = fields;
+    public String getKeyType() {
+        return fields.getFirst().getType();
     }
 }
