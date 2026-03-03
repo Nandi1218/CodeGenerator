@@ -1,36 +1,54 @@
 package nandi.project.controller;
 
-import nandi.project.controller.command.Command;
+        import nandi.project.controller.command.Command;
 
-import java.util.*;
-import java.util.function.Consumer;
+        import java.util.HashMap;
+        import java.util.Map;
+        import java.util.function.Consumer;
 
-public class InputController {
-    private final Map<String, Command> commands = new HashMap<>();
-    private final Consumer<String> dslProcessor; // Ez kezeli, ha nem parancsot írnak be
+        /**
+         * Handles user input by dispatching known commands or forwarding DSL text.
+         */
+        public class InputController {
+            private final Map<String, Command> commands = new HashMap<>();
+            private final Consumer<String> dslProcessor;
 
-    public InputController(Consumer<String> dslProcessor) {
-        this.dslProcessor = dslProcessor;
-    }
+            /**
+             * Creates an input controller with a DSL processor callback.
+             *
+             * @param dslProcessor callback used when input is not a registered command
+             */
+            public InputController(Consumer<String> dslProcessor) {
+                this.dslProcessor = dslProcessor;
+            }
 
-    public void registerCommand(Command cmd) {
-        commands.put(cmd.getCommandName(), cmd);
-    }
+            /**
+             * Registers a command by its command name.
+             *
+             * @param cmd command to register
+             */
+            public void registerCommand(Command cmd) {
+                commands.put(cmd.getCommandName(), cmd);
+            }
 
-    public void handleInput(String input) {
-        String trimmed = input.trim();
-        if (trimmed.isEmpty()) return;
+            /**
+             * Processes a line of input.
+             * Executes a matching command with its parameter, or forwards the text as DSL.
+             *
+             * @param input raw user input
+             */
+            public void handleInput(String input) {
+                String trimmed = input.trim();
+                if (trimmed.isEmpty()) return;
 
-        // Megnézzük, parancs-e (pl. "load path/to/file")
-        String[] parts = trimmed.split(" ", 2);
-        String firstWord = parts[0].toLowerCase();
-        String param = parts.length > 1 ? parts[1] : "";
+                String[] parts = trimmed.split(" ", 2);
+                String firstWord = parts[0].toLowerCase();
+                String param = parts.length > 1 ? parts[1] : "";
 
-        if (commands.containsKey(firstWord)) {
-            commands.get(firstWord).execute(param);
-        } else {
-            // Ha nem ismert parancs, akkor ez tiszta DSL kód
-            dslProcessor.accept(trimmed);
+                if (commands.containsKey(firstWord)) {
+                    commands.get(firstWord).execute(param);
+                } else {
+                    dslProcessor.accept(trimmed);
+                }
+            }
         }
-    }
-}

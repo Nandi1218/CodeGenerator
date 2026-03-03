@@ -44,9 +44,9 @@ public class Main {
         inputController.registerCommand(new LoadCommand(dsl -> processAndGenerate(dsl, config, generatorService)));
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("=== Spring Boot Entity DSL Generátor ===");
-        System.out.println("Használható parancsok: package <név>, load <fájl>, vagy írj be DSL kódot.");
-        System.out.println("Kilépés: CTRL+C vagy írd be: exit");
+        System.out.println("=== Spring Boot Entity DSL Generator ===");
+        System.out.println("Usable commands: package <name>, load <file>, or write DSL code.");
+        System.out.println("Exit: CTRL+C or type: exit");
 
         while (true) {
             System.out.print("DSL > ");
@@ -80,13 +80,13 @@ public class Main {
 
             if (entities != null && !entities.isEmpty()) {
                 generator.generate(entities);
-                System.out.println("[OK] Sikeres generálás!");
+                System.out.println("[OK] Successful generation!");
             } else {
-                System.out.println("[FIGYELEM] Nem találtam feldolgozható entitást.");
+                System.out.println("[WARNING] Processable entity not found.");
             }
 
         } catch (Exception e) {
-            System.err.println("[HIBA] Hiba történt a feldolgozás során: " + e.getMessage());
+            System.err.println("[ERROR] Error encountered during the processing: " + e.getMessage());
             e.printStackTrace();
         }
     }
