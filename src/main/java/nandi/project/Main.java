@@ -1,76 +1,85 @@
 package nandi.project;
 
-
+import nandi.project.controller.InputController;
+import nandi.project.controller.command.LoadCommand;
+import nandi.project.controller.command.SetPackageCommand;
 import nandi.project.model.EntityModel;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.stringtemplate.v4.*;
+import nandi.project.service.Configuration;
+import nandi.project.service.GeneratorService;
+import nandi.project.visitor.SpringVisitor;
 
-import java.io.File;
+// ANTLR importok
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
+
+
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args) {
-        /*String input = """
-                entity User {
-                        id: Long primary generated;
-                        email: String unique length(2,50); }
-                entity Product { id: Long primary generated; name: String; price: Double optional; }
-                entity Order {
-                        id: Long primary generated;
-                        user: User;
-                        products: Product[]; }
-                """;
-        */
-        Scanner sc = new Scanner(System.in);
-        while(true){
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while (sc.hasNextLine()) {
-                line = sc.nextLine();
-                if(line.equalsIgnoreCase("Exit")) System.exit(0);
-                if(line.isEmpty()) break;
-                sb.append(line).append("\n");
-            }
-            String input = sb.toString();
-            EntityDSLLexer lexer = new EntityDSLLexer(CharStreams.fromString(input));
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            EntityDSLParser parser = new EntityDSLParser(tokens);
-            ParseTree tree = parser.model();
 
+        Configuration config = new Configuration();
+        GeneratorService generatorService = new GeneratorService(config);
 
-            SpringVisitor visitor = new SpringVisitor();
+        // 2. Az InputController létrehozása
+        // A lambda függvény (dslCode -> ...) akkor fut le, ha a bemenet nem parancs
+        InputController inputController = new InputController(dslCode -> {
+            processAndGenerate(dslCode, config, generatorService);
+        });
 
-            List<EntityModel> entities = (List<EntityModel>) visitor.visit(tree);
+        // 3. Parancsok regisztrálása
+        inputController.registerCommand(new SetPackageCommand(config));
+        inputController.registerCommand(new LoadCommand(dsl -> processAndGenerate(dsl, config, generatorService)));
+        // Ide jöhet később: inputController.registerCommand(new HelpCommand());
 
-            //printToConsole(entities);
-            File file = new File("src/main/java/resources/spring_entity.stg");
-            if (!file.exists()) {
-                System.err.println("Template file not found: " + file.getAbsolutePath());
-                return;
-            }
-            STGroup group = new STGroupFile(file.getAbsolutePath());
+        // 4. Interaktív Shell indítása
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("=== Spring Boot Entity DSL Generátor ===");
+        System.out.println("Használható parancsok: package <név>, load <fájl>, vagy írj be DSL kódot.");
+        System.out.println("Kilépés: CTRL+C vagy írd be: exit");
 
-            for(var entity : entities){
-                ST st = group.getInstanceOf("entityTemplate");
-                st.add("entity", entity);
-                String generatedCode = st.render();
-                System.out.println(generatedCode);
-            }
+        while (true) {
+            System.out.print("DSL > ");
+            if (!scanner.hasNextLine()) break;
+
+            String input = scanner.nextLine();
+            if (input.equalsIgnoreCase("exit")) break;
+
+            inputController.handleInput(input);
         }
-
-
     }
 
-    private static void printToConsole(List<EntityModel> entities) {
-        for (EntityModel entity : entities) {
-            System.out.println("Entitás neve: " + entity.getName());
-            entity.getFields().forEach(f -> {
-                System.out.println("\t - Mező: " + f.getName() + ": " + f.getType());
-                System.out.println("\t\t   Annotációk: " + f.getModifiers());
-            });
+    /**
+     * Ez a metódus végzi el a konkrét ANTLR parsolást és hívja meg a generátort.
+     */
+    private static void processAndGenerate(String dslCode, Configuration config, GeneratorService generator) {
+        try {
+            // ANTLR folyamat: String -> Lexer -> Tokens -> Parser -> Tree
+            CodePointCharStream input = CharStreams.fromString(dslCode);
+            nandi.project.EntityDSLLexer lexer = new nandi.project.EntityDSLLexer(input);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            nandi.project.EntityDSLParser parser = new nandi.project.EntityDSLParser(tokens);
+
+            // 'model' a grammarod gyökérszabálya
+            ParseTree tree = parser.model();
+
+            // Visitor bejárás
+            SpringVisitor visitor = new SpringVisitor();
+            List<EntityModel> entities = (List<EntityModel>) visitor.visit(tree);
+
+            // Generálás
+            if (entities != null && !entities.isEmpty()) {
+                generator.generate(entities);
+                System.out.println("[OK] Sikeres generálás!");
+            } else {
+                System.out.println("[FIGYELEM] Nem találtam feldolgozható entitást.");
+            }
+
+        } catch (Exception e) {
+            System.err.println("[HIBA] Hiba történt a feldolgozás során: " + e.getMessage());
+            e.printStackTrace(); // Fejlesztés közben hasznos
         }
     }
 }

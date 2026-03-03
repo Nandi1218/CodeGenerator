@@ -25,7 +25,7 @@ public class FieldModel {
         this.type = type;
     }
 
-    public boolean isArray() {
+    public boolean getIsArray() {
         return isArray;
     }
 

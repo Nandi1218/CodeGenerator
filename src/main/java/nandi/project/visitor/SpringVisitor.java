@@ -1,4 +1,4 @@
-package nandi.project;
+package nandi.project.visitor;
 
 
 import nandi.project.model.EntityModel;

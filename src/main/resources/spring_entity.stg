@@ -1,5 +1,5 @@
-entityTemplate(entity) ::= <<
-package project.generated;
+entityTemplate(entity, pkg) ::= <<
+package <pkg>;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -25,8 +25,10 @@ getSetTemplate(f) ::= <<
         return <f.name>;
     }
 
-<if(!f.isArray)>
-    public void set<f.capitalName>(<f.type> <f.name>) {
+<if(f.isArray)>
+    // Itt nem generálunk setter-t, vagy mást csinálunk
+<else>
+    public void set<f.capName>(<f.type> <f.name>) {
         this.<f.name> = <f.name>;
     }
 <endif>
