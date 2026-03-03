@@ -1,15 +1,21 @@
 package nandi.project;
 
-import nandi.project.generated.antlr4.EntityDSLBaseVisitor;
-import nandi.project.generated.antlr4.EntityDSLParser.*;
+
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
+
+import nandi.project.EntityDSLBaseVisitor;
+import nandi.project.EntityDSLParser.*;
+
+
 
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
+
+
     @Override
     public Object visitModel(ModelContext ctx) {
         List<EntityModel> entities = new ArrayList<>();

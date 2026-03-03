@@ -1,5 +1,7 @@
 grammar EntityDSL;
-
+@header {
+package nandi.project;
+}
 /*
 entity [Name] {
     [pName]: [pType] [[modifier] [modifier] …]

@@ -1,7 +1,6 @@
 package nandi.project;
 
-import nandi.project.generated.antlr4.EntityDSLLexer;
-import nandi.project.generated.antlr4.EntityDSLParser;
+
 import nandi.project.model.EntityModel;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;

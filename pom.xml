@@ -39,9 +39,8 @@
                             <goal>antlr4</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/generated-sources/antlr4</outputDirectory>
                             <visitor>true</visitor>
-                            <listener>true</listener>
+                            <listener>false</listener>
                         </configuration>
                     </execution>
                 </executions>
