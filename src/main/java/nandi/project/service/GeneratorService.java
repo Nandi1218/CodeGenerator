@@ -35,8 +35,11 @@ package nandi.project.service;
                  */
                 public void generate(List<EntityModel> entities) {
                     for (EntityModel entity : entities) {
-                        String code = fillTemplate(entity);
-                        saveToFile(entity.getName(), code);
+                        String entityCode = render("entityTemplate",entity);
+                        String repoCode = render("repositoryTemplate",entity);
+
+                        saveToFile(entity.getName(), "model",  entityCode);
+                        saveToFile(entity.getName()+"Repository", "repository",  repoCode);
                     }
                 }
 
@@ -46,11 +49,12 @@ package nandi.project.service;
                  * @param entity entity model to render
                  * @return rendered Java source code
                  */
-                private String fillTemplate(EntityModel entity) {
-                    ST st = templateGroup.getInstanceOf("entityTemplate");
+                private String render(String template,EntityModel entity) {
+                    ST st = templateGroup.getInstanceOf(template);
                     st.add("entity", entity);
                     st.add("pkg", config.getTargetPackage());
                     return st.render();
+
                 }
 
                 /**
@@ -59,9 +63,9 @@ package nandi.project.service;
                  * @param entityName entity class name
                  * @param content rendered Java source code
                  */
-                private void saveToFile(String entityName, String content) {
+                private void saveToFile(String entityName, String subPkg, String content) {
                     try {
-                        String packagePath = config.getTargetPackage().replace('.', '/');
+                        String packagePath = (config.getTargetPackage() +"." + subPkg).replace('.', '/');
                         Path directoryPath = Paths.get(config.getOutputDirectory(), packagePath);
 
                         Files.createDirectories(directoryPath);
