@@ -8,7 +8,9 @@ import java.util.*;
 @Entity
 public class <entity.name> {
 
-    <entity.fields:fieldTemplate(); separator="\n\n">
+    <entity.fields:fieldTemplate(); separator="\n">
+
+    <entity.fields:getSetTemplate(); separator="\n">
 
 }
 >>
@@ -16,4 +18,16 @@ public class <entity.name> {
 fieldTemplate(f) ::= <<
     <f.modifiers: {a | <a>}; separator="\n">
     private <f.type> <f.name>;
+>>
+
+getSetTemplate(f) ::= <<
+public <f.type> get<f.capitalName>() {
+    return <f.name>;
+}
+
+<if(!f.isArray)>
+public void set<f.capitalName>(<f.type> <f.name>) {
+    this.<f.name> = <f.name>;
+}
+<endif>
 >>

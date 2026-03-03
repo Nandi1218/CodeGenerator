@@ -37,7 +37,7 @@ public class FieldModel {
         return modifiers;
     }
 
-    public void setModifiers(List<String> modifiers) {
-        this.modifiers = modifiers;
+    public String getCapitalName(){
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 }
