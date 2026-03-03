@@ -29,6 +29,7 @@ modifier    : 'primary'                     #PRIMARY
             | 'length' '(' INT ',' INT ')'  #LENGTH
             | 'minLength' '(' INT ')'       #MIN_LENGTH
             | 'maxLength' '(' INT ')'       #MAX_LENGTH
+            | 'email'                       #EMAIL
 //          | reláció modifiererek
 //          |
             ;

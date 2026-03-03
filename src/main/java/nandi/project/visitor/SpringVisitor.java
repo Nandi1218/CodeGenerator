@@ -111,4 +111,8 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
         return "@Size(max = " + max + ")";
     }
 
+    @Override
+    public Object visitEMAIL(EMAILContext ctx) {
+        return "@Email";
+    }
 }

@@ -1,0 +1,21 @@
+entity User{
+    id: Long generated primary
+    name: String required length(2, 255)
+    email: String email unique
+    password: String length(2, 255)
+    friends: User[] required
+}
+entity Car{
+    id: Long generated primary
+    plate: String unique
+    make: String required
+    model: String required
+    owner: User optional
+}
+entity VideoGame{
+    id: Long generated primary
+    title: String required
+    genre: String optional
+    releaseYear: Integer optional min(1950) max(2027)
+    developer: String optional
+}
