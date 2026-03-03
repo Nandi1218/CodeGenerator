@@ -1,9 +1,9 @@
 entity User{
-    id: Long generated primary
-    name: String required length(2, 255)
-    email: String email unique
-    password: String length(2, 255)
-    friends: User[] required
+    name: String required length(2,255);
+    emailAddress: String email unique;
+    id: Long generated primary;
+    password: String length(2,255);
+    friends: User[] required;
 }
 entity Car{
     id: Long generated primary

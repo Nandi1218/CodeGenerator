@@ -4,6 +4,7 @@ import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
 import nandi.project.EntityDSLBaseVisitor;
 import nandi.project.EntityDSLParser.*;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +30,16 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
     }
 
     /**
-     * Builds one entity model from an entity node.
+     * Builds and validates an `EntityModel` from an entity parse node.
+     *
+     * Validation rules:
+     * \- `@GeneratedValue(strategy = GenerationType.IDENTITY)` is only valid for `Integer` or `Long` fields.
+     * \- At most one primary key field is allowed, and it must be of type `Integer`.
+     * \- If no primary key is defined, a default `id: Integer` field is added with `@Id` and `@GeneratedValue(strategy = GenerationType.IDENTITY)`.
      *
      * @param ctx entity parse context
-     * @return parsed entity model
+     * @return validated entity model
+     * @throws IllegalArgumentException if primary key or generated field constraints are violated
      */
     @Override
     public Object visitEntity(EntityContext ctx) {
@@ -40,6 +47,36 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
         entity.setName(ctx.ID().getText());
         for (PropertyContext propCtx : ctx.property()) {
             entity.getFields().add((FieldModel) visitProperty(propCtx));
+        }
+        List<FieldModel> fields = new ArrayList<>();
+        for(var field : entity.getFields()) {
+            field.getModifiers().forEach(mod -> {
+                if(mod.equals("@GeneratedValue(strategy = GenerationType.IDENTITY)") && !(field.getType().equals("Integer") || field.getType().equals("Long"))) {
+                    throw new IllegalArgumentException("Field '" + field.getName() + "' in entity '" + entity.getName() + "' is marked as GENERATED but is not of type number.");
+                }
+                else if(mod.equals("@Id")){
+                    if(!(field.getType().equals("Integer")|| field.getType().equals("Long"))) throw new IllegalArgumentException("Field '" + field.getName() + "' in entity '" + entity.getName() + "' is marked as PRIMARY but is not of type Number.");
+                    fields.add(field);
+                }
+            });
+        }
+        if(fields.size() > 1) {
+            throw new IllegalArgumentException("Entity '" + entity.getName() + "' has multiple fields marked as PRIMARY. Only one primary key is allowed.");
+        }
+        if(fields.size() == 1) {
+            entity.getFields().remove(fields.getFirst());
+            entity.getFields().addFirst(fields.getFirst());
+        }
+
+        if(fields.isEmpty()) {
+            entity.getFields().addFirst(new FieldModel(){
+                {
+                setName("id");
+                setType("Integer");
+                setArray(false);
+                getModifiers().add("@Id");
+                getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+            }});
         }
         return entity;
     }
@@ -72,9 +109,15 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
     @Override
     public Object visitSimpleType(SimpleTypeContext ctx) {
         FieldModel field = new FieldModel();
-        field.setType(ctx.ID().getText());
-        field.setArray(false);
-        return field;
+        String type = format(ctx.ID());
+        Result result = new Result(field, type);
+
+        result.field().setType(result.type());
+        result.field().setArray(false);
+        return result.field();
+    }
+
+    private record Result(FieldModel field, String type) {
     }
 
     /**
@@ -86,9 +129,30 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
     @Override
     public Object visitListType(ListTypeContext ctx) {
         FieldModel field = new FieldModel();
-        field.setType("List<" + ctx.ID().getText() + ">");
+        String type = format(ctx.ID());
+
+        field.setType("List<" +type + ">");
         field.setArray(true);
         return field;
+    }
+    /**
+    * Normalizes a parsed type token into a Java\-friendly type name.
+     *
+     * <p>Rules applied:
+     * <ul>
+     * <li>Maps primitive aliases: `int` to `Integer`, `long` to `Long`.</li>
+     * <li>Capitalizes the first character when it is lowercase.</li>
+     * </ul>
+     *
+     * @param ctx terminal node containing the raw type token from the DSL * @return normalized type name used by generated field models
+     */
+    private static String format(TerminalNode ctx) {
+        String type = ctx.getText();
+        if (type.equals("int")) type = "Integer";
+        else if (type.equals("long")) type = "Long";
+        if (Character.isLowerCase(type.charAt(0)))
+            type = Character.toUpperCase(type.charAt(0)) + type.substring(1);
+        return type;
     }
 
     /**
