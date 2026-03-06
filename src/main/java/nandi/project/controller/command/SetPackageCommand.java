@@ -24,7 +24,7 @@ public class SetPackageCommand implements Command {
      */
     @Override
     public void execute(String pkg) {
-        config.setTargetPackage(pkg);
+        config.setTargetPackage(pkg.replace("/", "."));
         System.out.println("Target package set to: " + pkg);
     }
 
