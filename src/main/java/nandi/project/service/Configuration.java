@@ -6,6 +6,8 @@ package nandi.project.service;
 public class Configuration {
     private String targetPackage = "generated";
     private String outputDirectory = "./output";
+    private boolean generateService = true;
+    private boolean generateRepository = true;
 
     /**
      * Returns the target Java package for generated classes.
@@ -41,5 +43,40 @@ public class Configuration {
      */
     public void setOutputDirectory(String outputDirectory) {
         this.outputDirectory = outputDirectory;
+    }
+    /**
+     * Returns whether service classes should be generated.
+     *
+     * @return `true` if service generation is enabled; otherwise `false`
+     */
+    public boolean isGenerateService() {
+        return generateService;
+    }
+
+    /**
+     * Enables or disables service class generation.
+     *
+     * @param generateService `true` to enable service generation; otherwise `false`
+     */
+    public void setGenerateService(boolean generateService) {
+        this.generateService = generateService;
+    }
+
+    /**
+     * Returns whether repository classes should be generated.
+     *
+     * @return `true` if repository generation is enabled; otherwise `false`
+     */
+    public boolean isGenerateRepository() {
+        return generateRepository;
+    }
+
+    /**
+     * Enables or disables repository class generation.
+     *
+     * @param generateRepository `true` to enable repository generation; otherwise `false`
+     */
+    public void setGenerateRepository(boolean generateRepository) {
+        this.generateRepository = generateRepository;
     }
 }
