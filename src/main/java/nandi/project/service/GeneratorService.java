@@ -29,24 +29,30 @@ package nandi.project.service;
                 }
 
                 /**
-                 * Generates source files for all provided entities.
+                 * Generates sources depending on configuration settings.
                  *
                  * @param entities entity models to generate
                  */
                 public void generate(List<EntityModel> entities) {
                     for (EntityModel entity : entities) {
                         String entityCode = render("entityTemplate",entity);
-                        String repoCode = render("repositoryTemplate",entity);
-
                         saveToFile(entity.getName(), "model",  entityCode);
-                        saveToFile(entity.getName()+"Repository", "repository",  repoCode);
+                        if(config.isGenerateRepository()) {
+                            String repoCode = render("repositoryTemplate", entity);
+                            saveToFile(entity.getName()+"Repository", "repository",  repoCode);
+                        }
+                        if(config.isGenerateService()) {
+                            String serviceCode = render("serviceTemplate",entity);
+                            saveToFile(entity.getName()+"Service", "service",  serviceCode);
+                        }
                     }
                 }
 
                 /**
-                 * Renders a single entity model using the configured template.
+                 * Renders a template with the given entity model and package information.
                  *
                  * @param entity entity model to render
+                 * @param template name of the template to use
                  * @return rendered Java source code
                  */
                 private String render(String template,EntityModel entity) {
@@ -61,6 +67,7 @@ package nandi.project.service;
                  * Saves generated source code to the configured output directory and package path.
                  *
                  * @param entityName entity class name
+                 * @param subPkg sub-package for the generated class (e.g., "model", "repository", "service")
                  * @param content rendered Java source code
                  */
                 private void saveToFile(String entityName, String subPkg, String content) {
