@@ -1,4 +1,5 @@
 // --- ENTITY TEMPLATE ---
+// Template for generating a Spring Boot entity class with JPA annotations
 entityTemplate(entity, pkg) ::= <<
 package <pkg>;
 
@@ -35,6 +36,7 @@ getSetTemplate(f) ::= <<
 >>
 
 // --- REPOSITORY TEMPLATE ---
+// Template for generating a Spring Data JPA repository interface
 repositoryTemplate(entity, pkg) ::= <<
 package <pkg>.repository;
 
@@ -44,5 +46,45 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface <entity.name>Repository extends JpaRepository\<<entity.name>, <entity.keyType>\> {
+}
+>>
+// --- SERVICE TEMPLATE ---
+// Template for generating a Spring service class with basic CRUD operations
+serviceTemplate(entity, pkg) ::= <<
+package <pkg>.service;
+
+import <pkg>.model.<entity.name>;
+import <pkg>.repository.<entity.name>Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class <entity.name>Service {
+
+    private final <entity.name>Repository repository;
+
+    public <entity.name>Service(<entity.name>Repository repository) {
+        this.repository = repository;
+    }
+
+    public List\<<entity.name>\> findAll() {
+        return repository.findAll();
+    }
+
+    public Optional\<<entity.name>\> findById(Long id) {
+        return repository.findById(id);
+    }
+
+    @Transactional
+    public <entity.name> save(<entity.name> data) {
+        return repository.save(data);
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+    }
 }
 >>
