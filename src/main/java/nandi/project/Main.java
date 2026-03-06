@@ -1,8 +1,10 @@
 package nandi.project;
 
 import nandi.project.controller.InputController;
+import nandi.project.controller.command.HelpCommand;
 import nandi.project.controller.command.LoadCommand;
 import nandi.project.controller.command.SetPackageCommand;
+import nandi.project.controller.command.ToggleCommand;
 import nandi.project.model.EntityModel;
 import nandi.project.service.Configuration;
 import nandi.project.service.GeneratorService;
@@ -42,11 +44,15 @@ public class Main {
 
         inputController.registerCommand(new SetPackageCommand(config));
         inputController.registerCommand(new LoadCommand(dsl -> processAndGenerate(dsl, config, generatorService)));
+        inputController.registerCommand(new ToggleCommand(config));
+        inputController.registerCommand(new HelpCommand());
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("=== Spring Boot Entity DSL Generator ===");
-        System.out.println("Usable commands: package <name>, load <file>, or write DSL code.");
-        System.out.println("Exit: CTRL+C or type: exit");
+        System.out.println("""
+                           ================== Spring Boot Entity DSL Generator ==================
+                           Commands: package <name>, load <file>, help, toggle <Service|Repository>
+                           Or type DSL directly to generate code. Type 'exit' to quit.""");
+
 
         while (true) {
             System.out.print("DSL > ");
@@ -54,6 +60,17 @@ public class Main {
 
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("exit")) break;
+            if (input.toLowerCase().startsWith("entity"))
+            {
+                StringBuilder sb = new StringBuilder(input);
+                while (true) {
+                    String line = scanner.nextLine();
+                    if (line.trim().isEmpty()) break;
+                    sb.append("\n").append(line);
+                }
+                input = sb.toString();
+            }
+
 
             inputController.handleInput(input);
         }

@@ -48,6 +48,7 @@ package nandi.project.controller;
                 if (commands.containsKey(firstWord)) {
                     commands.get(firstWord).execute(param);
                 } else {
+
                     dslProcessor.accept(trimmed);
                 }
             }
