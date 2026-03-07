@@ -10,11 +10,9 @@ import java.util.*;
 @Entity
 public class <entity.name> {
 
-    <entity.fields:fieldTemplate(); separator="\n\n">
+<entity.fields:fieldTemplate(); separator="\n">
 
-    <entity.fields:getSetTemplate(); separator="\n">
-
-}
+<entity.fields:getSetTemplate(); separator="\n">}
 >>
 
 fieldTemplate(f) ::= <<
@@ -29,7 +27,7 @@ getSetTemplate(f) ::= <<
 
 <if(f.isArray)>
 <else>
-    public void set<f.capName>(<f.type> <f.name>) {
+    public void set<f.capitalName>(<f.type> <f.name>) {
         this.<f.name> = <f.name>;
     }
 <endif>
