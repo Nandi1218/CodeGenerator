@@ -126,9 +126,9 @@ class EntityValidationTest {
 
         // Should have 2 fields now: default id + name
         assertEquals(2, entity.getFields().size());
-        assertEquals("id", entity.getFields().get(0).getName());
-        assertEquals("Integer", entity.getFields().get(0).getType());
-        assertTrue(entity.getFields().get(0).getModifiers().contains("@Id"));
+        assertEquals("id", entity.getFields().getFirst().getName());
+        assertEquals("Integer", entity.getFields().getFirst().getType());
+        assertTrue(entity.getFields().getFirst().getModifiers().contains("@Id"));
     }
 
     @Test
@@ -151,7 +151,7 @@ class EntityValidationTest {
         processor.processPrimaryKey(entity);
 
         // Primary key should be first
-        assertEquals("customId", entity.getFields().get(0).getName());
+        assertEquals("customId", entity.getFields().getFirst().getName());
         assertEquals(2, entity.getFields().size());
     }
 

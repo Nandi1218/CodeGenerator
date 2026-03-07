@@ -88,8 +88,12 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
         return result.field();
     }
 
-    private record Result(FieldModel field, String type) {
-    }
+    /**
+     * Helper record to hold intermediate results when mapping types to field models.
+     * @param field
+     * @param type
+     */
+    private record Result(FieldModel field, String type) { }
 
     /**
      * Maps a list type declaration to a field model.
