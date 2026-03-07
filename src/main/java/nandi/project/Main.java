@@ -61,19 +61,29 @@ public class Main {
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("exit")) break;
             if (input.toLowerCase().startsWith("entity"))
-            {
-                StringBuilder sb = new StringBuilder(input);
-                while (true) {
-                    String line = scanner.nextLine();
-                    if (line.trim().isEmpty()) break;
-                    sb.append("\n").append(line);
-                }
-                input = sb.toString();
-            }
+                input = dslInput(input, scanner);
 
 
             inputController.handleInput(input);
         }
+    }
+    /**
+     * Reads multi-line DSL input until an empty line or closing brace is encountered.
+     *
+     * @param input initial line of DSL input
+     * @param scanner scanner to read additional lines
+     * @return complete DSL code as a single string
+     */
+    private static String dslInput(String input, Scanner scanner) {
+        StringBuilder sb = new StringBuilder(input);
+        while (true) {
+            String line = scanner.nextLine();
+            if (line.trim().isEmpty()) break;
+            sb.append("\n").append(line);
+            if (line.trim().endsWith("}")) break;
+        }
+        input = sb.toString();
+        return input;
     }
 
     /**
