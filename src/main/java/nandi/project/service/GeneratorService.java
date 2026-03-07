@@ -55,7 +55,7 @@ package nandi.project.service;
                  * @param template name of the template to use
                  * @return rendered Java source code
                  */
-                private String render(String template,EntityModel entity) {
+                String render(String template, EntityModel entity) {
                     ST st = templateGroup.getInstanceOf(template);
                     st.add("entity", entity);
                     st.add("pkg", config.getTargetPackage());
