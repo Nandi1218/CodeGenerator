@@ -3,7 +3,9 @@ package nandi.project.model;
 import nandi.project.exception.IllegalDSLInputException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents an entity parsed from the DSL, including its name and fields.
@@ -11,7 +13,11 @@ import java.util.List;
 public class EntityModel {
     private String name;
     private final List<FieldModel> fields = new ArrayList<>();
+    private Set<String> imports = new HashSet<>();
 
+    public Set<String> getImports() {
+        return imports;
+    }
 
     /**
      * Returns the entity name.
@@ -47,6 +53,14 @@ public class EntityModel {
         int primaryKeyCount = 0;
         FieldModel idField = null;
         for (var field : fields) {
+            field.getModifiers().forEach((modifier) -> {
+                if(modifier.contains("Email") || modifier.contains("Size") || modifier.contains("NotNull") || modifier.contains("Max") || modifier.contains("Min"))
+                    imports.add("jakarta.validation.constraints.*");
+            });
+            if(field.getIsArray())
+                imports.add("java.util.List");
+
+
             if(field.getModifiers().contains("@GeneratedValue(strategy = GenerationType.IDENTITY)") && !(field.getType().equals("Integer") || field.getType().equals("Long")))
                 throw new IllegalDSLInputException("Field '" + field.getName() + "' in entity '" + name + "' is marked as GENERATED but is not of type number.");
             else if(field.getModifiers().contains("@Id")){
@@ -72,6 +86,7 @@ public class EntityModel {
                 }
             });
         }
+
 
 
     }

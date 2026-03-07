@@ -1,11 +1,10 @@
 // --- ENTITY TEMPLATE ---
 // Template for generating a Spring Boot entity class with JPA annotations
 entityTemplate(entity, pkg) ::= <<
-package <pkg>;
+package <pkg>.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import java.util.*;
+<entity.imports: {a |import <a>;}; separator="\n">
 import <pkg>.model.*;
 
 @Entity

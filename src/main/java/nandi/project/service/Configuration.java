@@ -4,7 +4,7 @@ package nandi.project.service;
  * Stores runtime settings used by the code generator.
  */
 public class Configuration {
-    private String targetPackage = "generated";
+    private String targetPackage = "nandi.project.generated";
     private String outputDirectory = "./output";
     private boolean generateService = true;
     private boolean generateRepository = true;

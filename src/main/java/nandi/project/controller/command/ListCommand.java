@@ -16,7 +16,7 @@ public class ListCommand implements Command{
     }
     private String listCurrentSettings() {
         return ("""
-                Current package:\t\t.%s
+                Current package:\t\t%s
                 Current location:\t\t%s
                 Repository generation:\t%s
                 Service generation\t\t%s""").formatted(config.getTargetPackage(),
