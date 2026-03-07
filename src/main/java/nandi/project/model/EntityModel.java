@@ -1,6 +1,11 @@
 package nandi.project.model;
 
 import nandi.project.exception.IllegalDSLInputException;
+import nandi.project.processor.ImportProcessor;
+import nandi.project.processor.PrimaryKeyProcessor;
+import nandi.project.validation.CompositeEntityValidator;
+import nandi.project.validation.GeneratedValueValidator;
+import nandi.project.validation.PrimaryKeyValidator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,11 +14,43 @@ import java.util.Set;
 
 /**
  * Represents an entity parsed from the DSL, including its name and fields.
+ * Provides validation and processing capabilities through SOLID-compliant components.
  */
 public class EntityModel {
     private String name;
     private final List<FieldModel> fields = new ArrayList<>();
     private Set<String> imports = new HashSet<>();
+
+    private final CompositeEntityValidator validator;
+    private final ImportProcessor importProcessor;
+    private final PrimaryKeyProcessor primaryKeyProcessor;
+
+    /**
+     * Creates a new EntityModel with default validators and processors.
+     */
+    public EntityModel() {
+        this.validator = new CompositeEntityValidator()
+            .addValidator(new GeneratedValueValidator())
+            .addValidator(new PrimaryKeyValidator());
+        this.importProcessor = new ImportProcessor();
+        this.primaryKeyProcessor = new PrimaryKeyProcessor();
+    }
+
+    /**
+     * Creates a new EntityModel with custom validators and processors.
+     * Allows for dependency injection and testing.
+     *
+     * @param validator the validator to use for entity validation
+     * @param importProcessor the processor for managing imports
+     * @param primaryKeyProcessor the processor for primary key handling
+     */
+    public EntityModel(CompositeEntityValidator validator,
+                       ImportProcessor importProcessor,
+                       PrimaryKeyProcessor primaryKeyProcessor) {
+        this.validator = validator;
+        this.importProcessor = importProcessor;
+        this.primaryKeyProcessor = primaryKeyProcessor;
+    }
 
     public Set<String> getImports() {
         return imports;
@@ -49,45 +86,23 @@ public class EntityModel {
         return fields.getFirst().getType();
     }
 
+    /**
+     * Validates the entity model and performs necessary processing.
+     * Delegates to specialized validators and processors following SOLID principles.
+     *
+     * <p>Validation steps:
+     * <ul>
+     *   <li>Validates generated value field types</li>
+     *   <li>Validates primary key constraints</li>
+     *   <li>Processes and organizes primary key field</li>
+     *   <li>Processes required imports</li>
+     * </ul>
+     *
+     * @throws IllegalDSLInputException if validation fails
+     */
     public void validate() throws IllegalDSLInputException {
-        int primaryKeyCount = 0;
-        FieldModel idField = null;
-        for (var field : fields) {
-            field.getModifiers().forEach((modifier) -> {
-                if(modifier.contains("Email") || modifier.contains("Size") || modifier.contains("NotNull") || modifier.contains("Max") || modifier.contains("Min"))
-                    imports.add("jakarta.validation.constraints.*");
-            });
-            if(field.getIsArray())
-                imports.add("java.util.List");
-
-
-            if(field.getModifiers().contains("@GeneratedValue(strategy = GenerationType.IDENTITY)") && !(field.getType().equals("Integer") || field.getType().equals("Long")))
-                throw new IllegalDSLInputException("Field '" + field.getName() + "' in entity '" + name + "' is marked as GENERATED but is not of type number.");
-            else if(field.getModifiers().contains("@Id")){
-                idField = field;
-                primaryKeyCount++;
-            }
-        }
-        if(primaryKeyCount == 1) {
-            fields.remove(idField);
-            fields.addFirst(idField);
-        }
-        if(primaryKeyCount > 1) {
-            throw new IllegalDSLInputException("Entity '" + name + "' has multiple fields marked as PRIMARY. Only one primary key is allowed.");
-        }
-        if(primaryKeyCount == 0) {
-            getFields().addFirst(new FieldModel(){
-                {
-                    setName("id");
-                    setType("Integer");
-                    setArray(false);
-                    getModifiers().add("@Id");
-                    getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
-                }
-            });
-        }
-
-
-
+        validator.validate(this);
+        primaryKeyProcessor.processPrimaryKey(this);
+        importProcessor.processImports(this);
     }
 }
