@@ -105,6 +105,7 @@ class GeneratorServiceTest {
                 import jakarta.persistence.*;
                 import jakarta.validation.constraints.*;
                 import java.util.*;
+                import com.test.model.*;
                 
                 @Entity
                 public class Customer {

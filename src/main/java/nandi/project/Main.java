@@ -1,10 +1,7 @@
 package nandi.project;
 
 import nandi.project.controller.InputController;
-import nandi.project.controller.command.HelpCommand;
-import nandi.project.controller.command.LoadCommand;
-import nandi.project.controller.command.SetPackageCommand;
-import nandi.project.controller.command.ToggleCommand;
+import nandi.project.controller.command.*;
 import nandi.project.model.EntityModel;
 import nandi.project.service.Configuration;
 import nandi.project.service.GeneratorService;
@@ -42,16 +39,13 @@ public class Main {
             processAndGenerate(dslCode, config, generatorService);
         });
 
-        inputController.registerCommand(new SetPackageCommand(config));
-        inputController.registerCommand(new LoadCommand(dsl -> processAndGenerate(dsl, config, generatorService)));
-        inputController.registerCommand(new ToggleCommand(config));
-        inputController.registerCommand(new HelpCommand());
+        setCommands(inputController, config, generatorService);
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("""
                            ================== Spring Boot Entity DSL Generator ==================
-                           Commands: package <name>, load <file>, help, toggle <Service|Repository>
-                           Or type DSL directly to generate code. Type 'exit' to quit.""");
+                           Commands: list package <name>, load <file>, location <location>, toggle <Service|Repository>
+                           Or type DSL directly to generate code. Type 'exit' to quit. Type 'help' for more info.""");
 
 
         while (true) {
@@ -67,6 +61,22 @@ public class Main {
             inputController.handleInput(input);
         }
     }
+    /**
+     * Registers available commands with the input controller.
+     *
+     * @param inputController controller to register commands with
+     * @param config shared configuration for commands
+     * @param generatorService service used by commands that trigger generation
+     */
+    private static void setCommands(InputController inputController, Configuration config, GeneratorService generatorService) {
+        inputController.registerCommand(new SetPackageCommand(config));
+        inputController.registerCommand(new LoadCommand(dsl -> processAndGenerate(dsl, config, generatorService)));
+        inputController.registerCommand(new ToggleCommand(config));
+        inputController.registerCommand(new HelpCommand());
+        inputController.registerCommand(new SetLocationCommand(config));
+        inputController.registerCommand(new ListCommand(config));
+    }
+
     /**
      * Reads multi-line DSL input until an empty line or closing brace is encountered.
      *
