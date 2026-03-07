@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     direction BT
     class Command {
@@ -204,3 +205,4 @@ SpringVisitor  ..>  FieldModel : «create»
 SpringVisitor  ..>  Result : «create»
 ToggleCommand  ..>  Command 
 ToggleCommand "1" *--> "config 1" Configuration 
+```
