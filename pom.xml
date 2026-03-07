@@ -63,11 +63,12 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.7.1</version>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>nandi.project.Main</mainClass>
-                        </manifest>
-                    </archive>
+                    <finalName>Spring Code Generator</finalName>
+                    <appendAssemblyId>false</appendAssemblyId> <archive>
+                    <manifest>
+                        <mainClass>nandi.project.Main</mainClass>
+                    </manifest>
+                </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
