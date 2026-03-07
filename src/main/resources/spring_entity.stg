@@ -6,6 +6,7 @@ package <pkg>;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.util.*;
+import <pkg>.model.*;
 
 @Entity
 public class <entity.name> {
