@@ -46,7 +46,13 @@ public class FieldModel {
      * @param type field type
      */
     public void setType(String type) {
-        this.type = type;
+        switch (type) {
+            case "boolean"-> this.type = "Boolean";
+            case "int" -> this.type = "Integer";
+            case "long" -> this.type = "Long";
+            case "double"-> this.type = "Double";
+            default -> this.type = type;
+        }
     }
 
     /**

@@ -48,36 +48,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
         for (PropertyContext propCtx : ctx.property()) {
             entity.getFields().add((FieldModel) visitProperty(propCtx));
         }
-        List<FieldModel> fields = new ArrayList<>();
-        for(var field : entity.getFields()) {
-            field.getModifiers().forEach(mod -> {
-                if(mod.equals("@GeneratedValue(strategy = GenerationType.IDENTITY)") && !(field.getType().equals("Integer") || field.getType().equals("Long"))) {
-                    throw new IllegalArgumentException("Field '" + field.getName() + "' in entity '" + entity.getName() + "' is marked as GENERATED but is not of type number.");
-                }
-                else if(mod.equals("@Id")){
-                    if(!(field.getType().equals("Integer")|| field.getType().equals("Long"))) throw new IllegalArgumentException("Field '" + field.getName() + "' in entity '" + entity.getName() + "' is marked as PRIMARY but is not of type Number.");
-                    fields.add(field);
-                }
-            });
-        }
-        if(fields.size() > 1) {
-            throw new IllegalArgumentException("Entity '" + entity.getName() + "' has multiple fields marked as PRIMARY. Only one primary key is allowed.");
-        }
-        if(fields.size() == 1) {
-            entity.getFields().remove(fields.getFirst());
-            entity.getFields().addFirst(fields.getFirst());
-        }
-
-        if(fields.isEmpty()) {
-            entity.getFields().addFirst(new FieldModel(){
-                {
-                setName("id");
-                setType("Integer");
-                setArray(false);
-                getModifiers().add("@Id");
-                getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
-            }});
-        }
+        entity.validate();
         return entity;
     }
 
