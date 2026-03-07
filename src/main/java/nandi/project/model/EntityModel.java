@@ -19,7 +19,7 @@ import java.util.Set;
 public class EntityModel {
     private String name;
     private final List<FieldModel> fields = new ArrayList<>();
-    private Set<String> imports = new HashSet<>();
+    private final Set<String> imports = new HashSet<>();
 
     private final CompositeEntityValidator validator;
     private final ImportProcessor importProcessor;
