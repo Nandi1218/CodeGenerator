@@ -15,10 +15,11 @@ entity [Name] {
 // Parser szabályok
 model : entity* EOF;
 entity : 'entity' ID '{' property* '}';
-property : ID ':' type modifier* ';'? ;
+property : propertyName ':' type modifier* ';'? ;
+propertyName : ID | 'email';
 type    : ID                     #SimpleType
         | ID '[' ']'             #ListType
-                ;
+        ;
 modifier    : 'primary'                     #PRIMARY
             | 'generated'                   #GENERATED
             | 'required'                    #REQUIRED
