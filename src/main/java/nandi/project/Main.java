@@ -35,9 +35,7 @@ public class Main {
         Configuration config = new Configuration();
         GeneratorService generatorService = new GeneratorService(config);
 
-        InputController inputController = new InputController(dslCode -> {
-            processAndGenerate(dslCode, config, generatorService);
-        });
+        InputController inputController = new InputController(dslCode -> processAndGenerate(dslCode, generatorService));
 
         setCommands(inputController, config, generatorService);
 
@@ -70,7 +68,7 @@ public class Main {
      */
     private static void setCommands(InputController inputController, Configuration config, GeneratorService generatorService) {
         inputController.registerCommand(new SetPackageCommand(config));
-        inputController.registerCommand(new LoadCommand(dsl -> processAndGenerate(dsl, config, generatorService)));
+        inputController.registerCommand(new LoadCommand(dsl -> processAndGenerate(dsl, generatorService)));
         inputController.registerCommand(new ToggleCommand(config));
         inputController.registerCommand(new HelpCommand());
         inputController.registerCommand(new SetLocationCommand(config));
@@ -100,10 +98,9 @@ public class Main {
      * Parses DSL code using ANTLR and generates Spring Boot entity classes.
      *
      * @param dslCode the DSL code to process
-     * @param config configuration with package and output settings
      * @param generator service for generating entity files
      */
-    private static void processAndGenerate(String dslCode, Configuration config, GeneratorService generator) {
+    private static void processAndGenerate(String dslCode, GeneratorService generator) {
         try {
             CodePointCharStream input = CharStreams.fromString(dslCode);
             nandi.project.EntityDSLLexer lexer = new nandi.project.EntityDSLLexer(input);
@@ -113,7 +110,7 @@ public class Main {
             ParseTree tree = parser.model();
 
             SpringVisitor visitor = new SpringVisitor();
-            List<EntityModel> entities = (List<EntityModel>) visitor.visit(tree);
+            @SuppressWarnings("unchecked") List<EntityModel> entities = (List<EntityModel>) visitor.visit(tree);
 
             if (entities != null && !entities.isEmpty()) {
                 generator.generate(entities);
