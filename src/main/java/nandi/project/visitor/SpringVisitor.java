@@ -61,7 +61,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
     @Override
     public Object visitProperty(PropertyContext ctx) {
         FieldModel field = (FieldModel) visit(ctx.type());
-        field.setName(ctx.ID().getText());
+        field.setName(ctx.propertyName().getText());
         if (ctx.modifier() != null) {
             for (ModifierContext modCtx : ctx.modifier()) {
                 String modifier = (String) visit(modCtx);
