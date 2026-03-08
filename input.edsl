@@ -1,6 +1,6 @@
 entity User{
     name: String required length(2,255);
-    emailAddress: String email unique;
+    email: String email unique;
     id: Long generated primary;
     password: String length(2,255);
     friends: User[] required;
