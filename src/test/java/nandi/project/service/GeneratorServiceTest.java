@@ -100,11 +100,9 @@ class GeneratorServiceTest {
         entity.validate();
         String rendered = generatorService.render("entityTemplate", entity);
         assertEquals("""
-                package com.test;
+                package com.test.model;
                 
                 import jakarta.persistence.*;
-                import jakarta.validation.constraints.*;
-                import java.util.*;
                 import com.test.model.*;
                 
                 @Entity
