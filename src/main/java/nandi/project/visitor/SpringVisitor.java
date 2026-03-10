@@ -40,11 +40,11 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitEntity(EntityContext ctx) {
-        EntityModel.Builder builder = EntityModel.builder().name(ctx.ID().getText());
+        EntityModel.EntityBuilder entityBuilder = EntityModel.builder().name(ctx.ID().getText());
         for (PropertyContext propCtx : ctx.property()) {
-            builder.addField((FieldModel) visitProperty(propCtx));
+            entityBuilder.addField((FieldModel) visitProperty(propCtx));
         }
-        return builder.build();
+        return entityBuilder.build();
     }
 
     /**
