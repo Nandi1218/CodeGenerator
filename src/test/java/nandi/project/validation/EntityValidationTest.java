@@ -188,5 +188,33 @@ class EntityValidationTest {
 
         assertTrue(entity.getImports().contains("java.util.List"));
     }
-}
 
+    @Test
+    void testEntityBuilder_buildValidEntity_appliesDefaultPrimaryKey() {
+        FieldModel field = new FieldModel();
+        field.setName("name");
+        field.setType("String");
+
+        EntityModel entity = EntityModel.builder()
+            .name("TestEntity")
+            .addField(field)
+            .build();
+
+        assertEquals("TestEntity", entity.getName());
+        assertEquals("id", entity.getFields().getFirst().getName());
+        assertEquals("Integer", entity.getFields().getFirst().getType());
+    }
+
+    @Test
+    void testEntityBuilder_buildInvalidEntity_throwsException() {
+        FieldModel field = new FieldModel();
+        field.setName("code");
+        field.setType("String");
+        field.getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+
+        assertThrows(IllegalDSLInputException.class, () -> EntityModel.builder()
+            .name("TestEntity")
+            .addField(field)
+            .build());
+    }
+}

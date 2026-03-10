@@ -23,15 +23,12 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
     @Override
     public Object visitModel(ModelContext ctx) {
         List<EntityModel> entities = new ArrayList<>();
-        for (EntityContext entityCtx : ctx.entity()) {
-            entities.add((EntityModel) visitEntity(entityCtx));
-        }
+        for (EntityContext entityCtx : ctx.entity()) entities.add((EntityModel) visitEntity(entityCtx));
         return entities;
     }
 
     /**
      * Builds and validates an `EntityModel` from an entity parse node.
-     *
      * Validation rules:
      * \- `@GeneratedValue(strategy = GenerationType.IDENTITY)` is only valid for `Integer` or `Long` fields.
      * \- At most one primary key field is allowed, and it must be of type `Integer`.
@@ -43,13 +40,11 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitEntity(EntityContext ctx) {
-        EntityModel entity = new EntityModel();
-        entity.setName(ctx.ID().getText());
+        EntityModel.Builder builder = EntityModel.builder().name(ctx.ID().getText());
         for (PropertyContext propCtx : ctx.property()) {
-            entity.getFields().add((FieldModel) visitProperty(propCtx));
+            builder.addField((FieldModel) visitProperty(propCtx));
         }
-        entity.validate();
-        return entity;
+        return builder.build();
     }
 
     /**
@@ -257,3 +252,4 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
         return "@Email";
     }
 }
+

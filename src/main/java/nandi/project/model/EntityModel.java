@@ -105,4 +105,57 @@ public class EntityModel {
         primaryKeyProcessor.processPrimaryKey(this);
         importProcessor.processImports(this);
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private String name;
+        private final List<FieldModel> fields = new ArrayList<>();
+        private CompositeEntityValidator validator;
+        private ImportProcessor importProcessor;
+        private PrimaryKeyProcessor primaryKeyProcessor;
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder addField(FieldModel field) {
+            this.fields.add(field);
+            return this;
+        }
+
+        public Builder validator(CompositeEntityValidator validator) {
+            this.validator = validator;
+            return this;
+        }
+
+        public Builder importProcessor(ImportProcessor importProcessor) {
+            this.importProcessor = importProcessor;
+            return this;
+        }
+
+        public Builder primaryKeyProcessor(PrimaryKeyProcessor primaryKeyProcessor) {
+            this.primaryKeyProcessor = primaryKeyProcessor;
+            return this;
+        }
+
+        public EntityModel build() {
+            CompositeEntityValidator effectiveValidator = validator != null
+                ? validator
+                : new CompositeEntityValidator()
+                    .addValidator(new GeneratedValueValidator())
+                    .addValidator(new PrimaryKeyValidator());
+            ImportProcessor effectiveImportProcessor = importProcessor != null ? importProcessor : new ImportProcessor();
+            PrimaryKeyProcessor effectivePrimaryKeyProcessor = primaryKeyProcessor != null ? primaryKeyProcessor : new PrimaryKeyProcessor();
+
+            EntityModel entity = new EntityModel(effectiveValidator, effectiveImportProcessor, effectivePrimaryKeyProcessor);
+            entity.setName(name);
+            entity.getFields().addAll(fields);
+            entity.validate();
+            return entity;
+        }
+    }
 }

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -30,9 +29,8 @@ class GeneratorServiceTest {
     }
 
     @Test
-    void testGenerate_createsEntityFile() throws IOException {
-        EntityModel entity = new EntityModel();
-        entity.setName("User");
+    void testGenerate_createsEntityFile() {
+        EntityModel entity = EntityModel.builder().name("User").build();
 
         generatorService.generate(List.of(entity));
 
@@ -41,9 +39,8 @@ class GeneratorServiceTest {
     }
 
     @Test
-    void testGenerate_createsRepositoryWhenEnabled() throws IOException {
-        EntityModel entity = new EntityModel();
-        entity.setName("Product");
+    void testGenerate_createsRepositoryWhenEnabled() {
+        EntityModel entity = EntityModel.builder().name("Product").build();
         config.setGenerateRepository(true);
 
         generatorService.generate(List.of(entity));
@@ -53,9 +50,8 @@ class GeneratorServiceTest {
     }
 
     @Test
-    void testGenerate_doesNotCreateRepositoryWhenDisabled() throws IOException {
-        EntityModel entity = new EntityModel();
-        entity.setName("Product");
+    void testGenerate_doesNotCreateRepositoryWhenDisabled() {
+        EntityModel entity = EntityModel.builder().name("Product").build();
         config.setGenerateRepository(false);
 
         generatorService.generate(List.of(entity));
@@ -65,9 +61,8 @@ class GeneratorServiceTest {
     }
 
     @Test
-    void testGenerate_createsServiceWhenEnabled() throws IOException {
-        EntityModel entity = new EntityModel();
-        entity.setName("Order");
+    void testGenerate_createsServiceWhenEnabled() {
+        EntityModel entity = EntityModel.builder().name("Order").build();
         config.setGenerateService(true);
 
         generatorService.generate(List.of(entity));
@@ -77,27 +72,27 @@ class GeneratorServiceTest {
     }
 
     @Test
-    void testGenerate_handlesMultipleEntities() throws IOException {
-        EntityModel user = new EntityModel();
-        user.setName("User");
-        EntityModel product = new EntityModel();
-        product.setName("Product");
+    void testGenerate_handlesMultipleEntities() {
+        EntityModel user = EntityModel.builder().name("User").build();
+        EntityModel product = EntityModel.builder().name("Product").build();
 
         generatorService.generate(List.of(user, product));
 
         assertTrue(Files.exists(tempDir.resolve("com/test/model/User.java")));
-        assertTrue(Files.exists(tempDir.resolve("com/test/model/User.java")));
         assertTrue(Files.exists(tempDir.resolve("com/test/model/Product.java")));
     }
+
     @Test
     void testTemplateRendering() {
-        EntityModel entity = new EntityModel();
-        entity.setName("Customer");
         FieldModel field = new FieldModel();
         field.setName("name");
         field.setType("String");
-        entity.getFields().add(field);
-        entity.validate();
+
+        EntityModel entity = EntityModel.builder()
+            .name("Customer")
+            .addField(field)
+            .build();
+
         String rendered = generatorService.render("entityTemplate", entity);
         assertEquals("""
                 package com.test.model;
