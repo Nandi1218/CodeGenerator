@@ -45,11 +45,7 @@ package nandi.project.controller;
                 String firstWord = parts[0].toLowerCase();
                 String param = parts.length > 1 ? parts[1] : "";
 
-                if (commands.containsKey(firstWord)) {
-                    commands.get(firstWord).execute(param);
-                } else {
-
-                    dslProcessor.accept(trimmed);
-                }
+                if (commands.containsKey(firstWord)) commands.get(firstWord).execute(param);
+                else dslProcessor.accept(trimmed);
             }
         }

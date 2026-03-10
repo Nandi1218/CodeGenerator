@@ -1,5 +1,7 @@
 package nandi.project.model;
 
+import nandi.project.render.FieldModifierRenderer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +13,7 @@ public class FieldModel {
     private String name;
     private String type;
     private boolean isArray;
-    private final List<String> modifiers = new ArrayList<>();
+    private final List<FieldModifier> modifiers = new ArrayList<>();
 
     /**
      * Returns the field name.
@@ -47,10 +49,10 @@ public class FieldModel {
      */
     public void setType(String type) {
         switch (type) {
-            case "boolean"-> this.type = "Boolean";
+            case "boolean" -> this.type = "Boolean";
             case "int" -> this.type = "Integer";
             case "long" -> this.type = "Long";
-            case "double"-> this.type = "Double";
+            case "double" -> this.type = "Double";
             default -> this.type = type;
         }
     }
@@ -74,12 +76,40 @@ public class FieldModel {
     }
 
     /**
-     * Returns the list of annotations/modifiers for this field.
+     * Returns typed modifier specifications for this field.
      *
-     * @return modifier strings
+     * @return typed modifier list
+     */
+    public List<FieldModifier> getModifierSpecs() {
+        return modifiers;
+    }
+
+    /**
+     * Adds a typed modifier specification.
+     *
+     * @param modifier modifier to add
+     */
+    public void addModifier(FieldModifier modifier) {
+        modifiers.add(modifier);
+    }
+
+    /**
+     * Checks whether this field contains a modifier kind.
+     *
+     * @param kind modifier kind to check
+     * @return true if present
+     */
+    public boolean hasModifier(ModifierKind kind) {
+        return modifiers.stream().anyMatch(modifier -> modifier.getKind() == kind);
+    }
+
+    /**
+     * Returns rendered annotations/modifiers for template consumption.
+     *
+     * @return rendered modifier strings
      */
     public List<String> getModifiers() {
-        return modifiers;
+        return modifiers.stream().map(FieldModifierRenderer::render).toList();
     }
 
     /**

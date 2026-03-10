@@ -3,7 +3,7 @@ entity User{
     email: String email unique;
     id: Long generated primary;
     password: String length(2,255);
-    friends: User[] required;
+    friends: User[];
 }
 entity Car{
     id: Long generated primary

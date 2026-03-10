@@ -2,6 +2,8 @@ package nandi.project.processor;
 
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
+import nandi.project.model.FieldModifier;
+import nandi.project.render.FieldModifierRenderer;
 
 import java.util.Set;
 
@@ -32,7 +34,7 @@ public class ImportProcessor implements EntityProcessor {
      * @param imports the import set to populate
      */
     private void processFieldModifiers(FieldModel field, Set<String> imports) {
-        for (String modifier : field.getModifiers()) {
+        for (FieldModifier modifier : field.getModifierSpecs()) {
             if (isValidationAnnotation(modifier)) {
                 imports.add("jakarta.validation.constraints.*");
                 break;
@@ -58,12 +60,7 @@ public class ImportProcessor implements EntityProcessor {
      * @param modifier the modifier to check
      * @return true if it's a validation annotation
      */
-    private boolean isValidationAnnotation(String modifier) {
-        return modifier.contains("Email") ||
-               modifier.contains("Size") ||
-               modifier.contains("NotNull") ||
-               modifier.contains("Max") ||
-               modifier.contains("Min");
+    private boolean isValidationAnnotation(FieldModifier modifier) {
+        return FieldModifierRenderer.isValidationModifier(modifier);
     }
 }
-

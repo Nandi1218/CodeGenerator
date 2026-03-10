@@ -31,8 +31,11 @@ modifier    : 'primary'                     #PRIMARY
             | 'minLength' '(' INT ')'       #MIN_LENGTH
             | 'maxLength' '(' INT ')'       #MAX_LENGTH
             | 'email'                       #EMAIL
-//          | reláció modifiererek
-//          |
+            | 'manyToOne'                   #MANY_TO_ONE
+            | 'oneToMany' '(' ID ')'        #ONE_TO_MANY
+            | 'oneToOne'                    #ONE_TO_ONE_OWNER
+            | 'oneToOne' '(' ID ')'         #ONE_TO_ONE
+            | 'manyToMany'                  #MANY_TO_MANY
             ;
 
 // Lexer szabályok

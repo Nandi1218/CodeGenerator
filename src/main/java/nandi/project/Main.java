@@ -115,9 +115,7 @@ public class Main {
             if (entities != null && !entities.isEmpty()) {
                 generator.generate(entities);
                 System.out.println("[OK] Successful generation!");
-            } else {
-                System.out.println("[WARNING] Processable entity not found.");
-            }
+            } else System.out.println("[WARNING] Processable entity not found.");
 
         } catch (Exception e) {
             System.err.println("[ERROR] Error encountered during the processing: " + e.getMessage());

@@ -3,6 +3,7 @@ package nandi.project.validation;
 import nandi.project.exception.IllegalDSLInputException;
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
+import nandi.project.model.FieldModifier;
 import nandi.project.processor.CompositeEntityProcessor;
 import nandi.project.processor.ImportProcessor;
 import nandi.project.processor.PrimaryKeyProcessor;
@@ -24,7 +25,7 @@ class EntityValidationTest {
         FieldModel field = new FieldModel();
         field.setName("code");
         field.setType("String");
-        field.getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+        field.addModifier(FieldModifier.generated());
         entity.getFields().add(field);
 
         GeneratedValueValidator validator = new GeneratedValueValidator();
@@ -40,7 +41,7 @@ class EntityValidationTest {
         FieldModel field = new FieldModel();
         field.setName("id");
         field.setType("Integer");
-        field.getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+        field.addModifier(FieldModifier.generated());
         entity.getFields().add(field);
 
         GeneratedValueValidator validator = new GeneratedValueValidator();
@@ -56,13 +57,13 @@ class EntityValidationTest {
         FieldModel field1 = new FieldModel();
         field1.setName("id1");
         field1.setType("Integer");
-        field1.getModifiers().add("@Id");
+        field1.addModifier(FieldModifier.id());
         entity.getFields().add(field1);
 
         FieldModel field2 = new FieldModel();
         field2.setName("id2");
         field2.setType("Integer");
-        field2.getModifiers().add("@Id");
+        field2.addModifier(FieldModifier.id());
         entity.getFields().add(field2);
 
         PrimaryKeyValidator validator = new PrimaryKeyValidator();
@@ -79,8 +80,8 @@ class EntityValidationTest {
         FieldModel field1 = new FieldModel();
         field1.setName("id1");
         field1.setType("String");  // Invalid for GeneratedValue
-        field1.getModifiers().add("@Id");
-        field1.getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+        field1.addModifier(FieldModifier.id());
+        field1.addModifier(FieldModifier.generated());
         entity.getFields().add(field1);
 
         CompositeEntityValidator validator = new CompositeEntityValidator()
@@ -145,7 +146,7 @@ class EntityValidationTest {
         FieldModel field2 = new FieldModel();
         field2.setName("customId");
         field2.setType("Long");
-        field2.getModifiers().add("@Id");
+        field2.addModifier(FieldModifier.id());
         entity.getFields().add(field2);
 
         PrimaryKeyProcessor processor = new PrimaryKeyProcessor();
@@ -164,7 +165,7 @@ class EntityValidationTest {
         FieldModel field = new FieldModel();
         field.setName("email");
         field.setType("String");
-        field.getModifiers().add("@Email");
+        field.addModifier(FieldModifier.email());
         entity.getFields().add(field);
 
         ImportProcessor processor = new ImportProcessor();
@@ -211,7 +212,7 @@ class EntityValidationTest {
         FieldModel field = new FieldModel();
         field.setName("code");
         field.setType("String");
-        field.getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+        field.addModifier(FieldModifier.generated());
 
         assertThrows(IllegalDSLInputException.class, () -> EntityModel.builder()
             .name("TestEntity")

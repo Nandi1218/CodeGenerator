@@ -3,6 +3,7 @@ package nandi.project.validation;
 import nandi.project.exception.IllegalDSLInputException;
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
+import nandi.project.model.ModifierKind;
 
 /**
  * Validates that fields marked with @GeneratedValue have appropriate numeric types.
@@ -13,7 +14,7 @@ public class GeneratedValueValidator implements EntityValidator {
     @Override
     public void validate(EntityModel entity) throws IllegalDSLInputException {
         for (FieldModel field : entity.getFields()) {
-            if (field.getModifiers().contains("@GeneratedValue(strategy = GenerationType.IDENTITY)")) {
+            if (field.hasModifier(ModifierKind.GENERATED)) {
                 if (!isNumericType(field.getType())) {
                     throw new IllegalDSLInputException(
                         "Field '" + field.getName() + "' in entity '" + entity.getName() +
@@ -34,4 +35,3 @@ public class GeneratedValueValidator implements EntityValidator {
         return "Integer".equals(type) || "Long".equals(type);
     }
 }
-

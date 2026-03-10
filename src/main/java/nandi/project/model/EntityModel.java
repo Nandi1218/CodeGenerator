@@ -1,13 +1,11 @@
 package nandi.project.model;
 
 import nandi.project.exception.IllegalDSLInputException;
-import nandi.project.processor.CompositeEntityProcessor;
-import nandi.project.processor.ImportProcessor;
-import nandi.project.processor.PrimaryKeyProcessor;
-import nandi.project.processor.TypeProcessor;
+import nandi.project.processor.*;
 import nandi.project.validation.CompositeEntityValidator;
 import nandi.project.validation.GeneratedValueValidator;
 import nandi.project.validation.PrimaryKeyValidator;
+import nandi.project.validation.RelationValidator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,12 +30,14 @@ public class EntityModel {
     public EntityModel() {
         this(
             new CompositeEntityValidator()
-                .addValidator(new GeneratedValueValidator())
-                .addValidator(new PrimaryKeyValidator()),
+                    .addValidator(new GeneratedValueValidator())
+                    .addValidator(new PrimaryKeyValidator())
+                    .addValidator(new RelationValidator()),
             new CompositeEntityProcessor()
-                .addProcessor(new ImportProcessor())
-                .addProcessor(new PrimaryKeyProcessor())
-                .addProcessor(new TypeProcessor())
+                    .addProcessor(new ImportProcessor())
+                    .addProcessor(new PrimaryKeyProcessor())
+                    .addProcessor(new TypeProcessor())
+                    .addProcessor(new RelationProcessor())
             );
     }
 
@@ -152,13 +152,15 @@ public class EntityModel {
                     ? validator
                     : new CompositeEntityValidator()
                     .addValidator(new GeneratedValueValidator())
-                    .addValidator(new PrimaryKeyValidator());
+                    .addValidator(new PrimaryKeyValidator())
+                    .addValidator(new RelationValidator());
             CompositeEntityProcessor effectiveEntityProcessor = processor != null
                     ? processor
                     : new CompositeEntityProcessor()
                     .addProcessor(new ImportProcessor())
                     .addProcessor(new PrimaryKeyProcessor())
-                    .addProcessor(new TypeProcessor());
+                    .addProcessor(new TypeProcessor())
+                    .addProcessor(new RelationProcessor());
 
 
             EntityModel entity = new EntityModel(effectiveValidator, effectiveEntityProcessor);

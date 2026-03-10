@@ -2,7 +2,8 @@ package nandi.project.processor;
 
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
-import nandi.project.validation.EntityValidator;
+import nandi.project.model.FieldModifier;
+import nandi.project.model.ModifierKind;
 
 /**
  * Processes primary key fields in an entity model.
@@ -34,7 +35,7 @@ public class PrimaryKeyProcessor implements EntityProcessor {
      */
     private FieldModel findPrimaryKey(EntityModel entity) {
         for (FieldModel field : entity.getFields()) {
-            if (field.getModifiers().contains("@Id")) {
+            if (field.hasModifier(ModifierKind.ID)) {
                 return field;
             }
         }
@@ -63,10 +64,9 @@ public class PrimaryKeyProcessor implements EntityProcessor {
         defaultIdField.setName("id");
         defaultIdField.setType("Integer");
         defaultIdField.setArray(false);
-        defaultIdField.getModifiers().add("@Id");
-        defaultIdField.getModifiers().add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+        defaultIdField.addModifier(FieldModifier.id());
+        defaultIdField.addModifier(FieldModifier.generated());
 
         entity.getFields().addFirst(defaultIdField);
     }
 }
-

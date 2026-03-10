@@ -3,6 +3,7 @@ package nandi.project.validation;
 import nandi.project.exception.IllegalDSLInputException;
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
+import nandi.project.model.ModifierKind;
 
 /**
  * Validates that an entity has exactly one primary key field.
@@ -15,7 +16,7 @@ public class PrimaryKeyValidator implements EntityValidator {
         int primaryKeyCount = 0;
 
         for (FieldModel field : entity.getFields()) {
-            if (field.getModifiers().contains("@Id")) {
+            if (field.hasModifier(ModifierKind.ID)) {
                 primaryKeyCount++;
             }
         }
@@ -27,4 +28,3 @@ public class PrimaryKeyValidator implements EntityValidator {
         }
     }
 }
-

@@ -2,6 +2,7 @@ package nandi.project.visitor;
 
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
+import nandi.project.model.FieldModifier;
 import nandi.project.EntityDSLBaseVisitor;
 import nandi.project.EntityDSLParser.*;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -51,8 +52,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
         field.setName(ctx.propertyName().getText());
         if (ctx.modifier() != null) {
             for (ModifierContext modCtx : ctx.modifier()) {
-                String modifier = (String) visit(modCtx);
-                field.getModifiers().add(modifier);
+                field.addModifier((FieldModifier) visit(modCtx));
             }
         }
         return field;
@@ -115,7 +115,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitPRIMARY(PRIMARYContext ctx) {
-        return "@Id";
+        return FieldModifier.id();
     }
 
     /**
@@ -126,7 +126,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitGENERATED(GENERATEDContext ctx) {
-        return "@GeneratedValue(strategy = GenerationType.IDENTITY)";
+        return FieldModifier.generated();
     }
 
     /**
@@ -137,7 +137,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitREQUIRED(REQUIREDContext ctx) {
-        return "@Column(nullable = false)";
+        return FieldModifier.required();
     }
 
     /**
@@ -148,7 +148,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitUNIQUE(UNIQUEContext ctx) {
-        return "@Column(unique = true)";
+        return FieldModifier.unique();
     }
 
     /**
@@ -159,7 +159,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitOPTIONAL(OPTIONALContext ctx) {
-        return "@Column(nullable = true)";
+        return FieldModifier.optional();
     }
 
     /**
@@ -170,8 +170,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitMIN(MINContext ctx) {
-        String value = ctx.INT().getText();
-        return "@Min(" + value + ")";
+        return FieldModifier.min(Integer.parseInt(ctx.INT().getText()));
     }
 
     /**
@@ -182,8 +181,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitMAX(MAXContext ctx) {
-        String value = ctx.INT().getText();
-        return "@Max(" + value + ")";
+        return FieldModifier.max(Integer.parseInt(ctx.INT().getText()));
     }
 
     /**
@@ -194,9 +192,9 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitLENGTH(LENGTHContext ctx) {
-        String min = ctx.INT(0).getText();
-        String max = ctx.INT(1).getText();
-        return "@Size(min = " + min + ", max = " + max + ")";
+        int min = Integer.parseInt(ctx.INT(0).getText());
+        int max = Integer.parseInt(ctx.INT(1).getText());
+        return FieldModifier.sizeMinMax(min, max);
     }
 
     /**
@@ -207,8 +205,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitMIN_LENGTH(MIN_LENGTHContext ctx) {
-        String min = ctx.INT().getText();
-        return "@Size(min = " + min + ")";
+        return FieldModifier.sizeMin(Integer.parseInt(ctx.INT().getText()));
     }
 
     /**
@@ -219,8 +216,7 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitMAX_LENGTH(MAX_LENGTHContext ctx) {
-        String max = ctx.INT().getText();
-        return "@Size(max = " + max + ")";
+        return FieldModifier.sizeMax(Integer.parseInt(ctx.INT().getText()));
     }
 
     /**
@@ -231,7 +227,32 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
      */
     @Override
     public Object visitEMAIL(EMAILContext ctx) {
-        return "@Email";
+        return FieldModifier.email();
     }
-}
 
+    @Override
+    public Object visitMANY_TO_ONE(MANY_TO_ONEContext ctx) {
+        return FieldModifier.manyToOne();
+    }
+
+    @Override
+    public Object visitONE_TO_MANY(ONE_TO_MANYContext ctx) {
+        return FieldModifier.oneToMany(ctx.ID().getText());
+    }
+
+    @Override
+    public Object visitONE_TO_ONE_OWNER(ONE_TO_ONE_OWNERContext ctx) {
+        return FieldModifier.oneToOneOwner();
+    }
+
+    @Override
+    public Object visitONE_TO_ONE(ONE_TO_ONEContext ctx) {
+        return FieldModifier.oneToOne(ctx.ID().getText());
+    }
+
+    @Override
+    public Object visitMANY_TO_MANY(MANY_TO_MANYContext ctx) {
+        return FieldModifier.manyToMany();
+    }
+
+}
