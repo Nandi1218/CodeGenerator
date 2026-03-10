@@ -20,7 +20,7 @@ import java.util.Scanner;
  * Supports custom DSL syntax, package configuration, and file loading.
  *
  * @author nandi.project
- * @version 0.1.1
+ * @version 0.1.2
  */
 public class Main {
 
@@ -41,7 +41,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("""
-                           ================== Spring Boot Entity DSL Generator ==================
+                           =============================== Spring Boot Code Generator ===============================
                            Commands: list package <name>, load <file>, location <location>, toggle <Service|Repository>
                            Or type DSL directly to generate code. Type 'exit' to quit. Type 'help' for more info.""");
 
