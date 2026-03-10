@@ -2,12 +2,13 @@ package nandi.project.processor;
 
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
+import nandi.project.validation.EntityValidator;
 
 /**
  * Processes primary key fields in an entity model.
  * Ensures primary key is positioned first and creates default ID if none exists.
  */
-public class PrimaryKeyProcessor {
+public class PrimaryKeyProcessor implements EntityProcessor {
 
     /**
      * Processes the primary key for an entity.
@@ -15,7 +16,7 @@ public class PrimaryKeyProcessor {
      *
      * @param entity the entity model to process
      */
-    public void processPrimaryKey(EntityModel entity) {
+    public void process(EntityModel entity) {
         FieldModel primaryKeyField = findPrimaryKey(entity);
 
         if (primaryKeyField != null) {

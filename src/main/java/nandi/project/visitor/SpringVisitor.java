@@ -28,22 +28,14 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
     }
 
     /**
-     * Builds and validates an `EntityModel` from an entity parse node.
-     * Validation rules:
-     * \- `@GeneratedValue(strategy = GenerationType.IDENTITY)` is only valid for `Integer` or `Long` fields.
-     * \- At most one primary key field is allowed, and it must be of type `Integer`.
-     * \- If no primary key is defined, a default `id: Integer` field is added with `@Id` and `@GeneratedValue(strategy = GenerationType.IDENTITY)`.
-     *
+     * Builds an `EntityModel` from an entity parse node.
      * @param ctx entity parse context
      * @return validated entity model
-     * @throws IllegalArgumentException if primary key or generated field constraints are violated
      */
     @Override
     public Object visitEntity(EntityContext ctx) {
         EntityModel.EntityBuilder entityBuilder = EntityModel.builder().name(ctx.ID().getText());
-        for (PropertyContext propCtx : ctx.property()) {
-            entityBuilder.addField((FieldModel) visitProperty(propCtx));
-        }
+        for (PropertyContext propCtx : ctx.property()) entityBuilder.addField((FieldModel) visitProperty(propCtx));
         return entityBuilder.build();
     }
 
@@ -76,20 +68,10 @@ public class SpringVisitor extends EntityDSLBaseVisitor<Object> {
     public Object visitSimpleType(SimpleTypeContext ctx) {
         FieldModel field = new FieldModel();
         String type = format(ctx.ID());
-        Result result = new Result(field, type);
-
-        result.field().setType(result.type());
-        result.field().setArray(false);
-        return result.field();
+        field.setType(type);
+        field.setArray(false);
+        return field;
     }
-
-    /**
-     * Helper record to hold intermediate results when mapping types to field models.
-     * @param field
-     * @param type
-     */
-    private record Result(FieldModel field, String type) { }
-
     /**
      * Maps a list type declaration to a field model.
      *

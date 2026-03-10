@@ -1,13 +1,14 @@
 package nandi.project.model;
 
 import nandi.project.exception.IllegalDSLInputException;
+import nandi.project.processor.CompositeEntityProcessor;
 import nandi.project.processor.ImportProcessor;
 import nandi.project.processor.PrimaryKeyProcessor;
+import nandi.project.processor.TypeProcessor;
 import nandi.project.validation.CompositeEntityValidator;
 import nandi.project.validation.GeneratedValueValidator;
 import nandi.project.validation.PrimaryKeyValidator;
 
-import javax.xml.validation.Validator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,35 +22,35 @@ public class EntityModel {
     private final List<FieldModel> fields = new ArrayList<>();
     private final Set<String> imports = new HashSet<>();
 
-    private final CompositeEntityValidator validator;
-    private final ImportProcessor importProcessor;
-    private final PrimaryKeyProcessor primaryKeyProcessor;
+    private final CompositeEntityProcessor entityProcessor;
+    private final CompositeEntityValidator entityValidator;
 
 
     /**
      * Creates a new EntityModel with default validators and processors.
      */
     public EntityModel() {
-        this.validator = new CompositeEntityValidator()
-            .addValidator(new GeneratedValueValidator())
-            .addValidator(new PrimaryKeyValidator());
-        this.importProcessor = new ImportProcessor();
-        this.primaryKeyProcessor = new PrimaryKeyProcessor();
+        this(
+            new CompositeEntityValidator()
+                .addValidator(new GeneratedValueValidator())
+                .addValidator(new PrimaryKeyValidator()),
+            new CompositeEntityProcessor()
+                .addProcessor(new ImportProcessor())
+                .addProcessor(new PrimaryKeyProcessor())
+                .addProcessor(new TypeProcessor())
+            );
     }
 
     /**
      * Creates a new EntityModel with custom validators and processors.
      *
-     * @param validator the validator to use for entity validation
-     * @param importProcessor the processor for managing imports
-     * @param primaryKeyProcessor the processor for primary key handling
+     * @param entityValidator the validator to use for entity validation
+     * @param entityProcessor the processor to use for entity processing
      */
-    public EntityModel(CompositeEntityValidator validator,
-                       ImportProcessor importProcessor,
-                       PrimaryKeyProcessor primaryKeyProcessor) {
-        this.validator = validator;
-        this.importProcessor = importProcessor;
-        this.primaryKeyProcessor = primaryKeyProcessor;
+    public EntityModel(CompositeEntityValidator entityValidator,
+                       CompositeEntityProcessor entityProcessor) {
+        this.entityValidator = entityValidator;
+        this.entityProcessor = entityProcessor;
     }
 
     /**
@@ -86,8 +87,7 @@ public class EntityModel {
         private String name;
         private final List<FieldModel> fields = new ArrayList<>();
         private CompositeEntityValidator validator;
-        private ImportProcessor importProcessor;
-        private PrimaryKeyProcessor primaryKeyProcessor;
+        private CompositeEntityProcessor processor;
 
         /**
          * Sets the entity name.
@@ -124,29 +124,8 @@ public class EntityModel {
             return this;
         }
 
-        /**
-         * Provides a custom import processor for the entity.
-         *
-         * <p>Optional. If not specified, a default ImportProcessor will be used.
-         *
-         * @param importProcessor the import processor to use
-         * @return this builder for method chaining
-         */
-        public EntityBuilder importProcessor(ImportProcessor importProcessor) {
-            this.importProcessor = importProcessor;
-            return this;
-        }
-
-        /**
-         * Provides a custom primary key processor for the entity.
-         *
-         * <p>Optional. If not specified, a default PrimaryKeyProcessor will be used.
-         *
-         * @param primaryKeyProcessor the primary key processor to use
-         * @return this builder for method chaining
-         */
-        public EntityBuilder primaryKeyProcessor(PrimaryKeyProcessor primaryKeyProcessor) {
-            this.primaryKeyProcessor = primaryKeyProcessor;
+        public EntityBuilder processor(CompositeEntityProcessor processor) {
+            this.processor = processor;
             return this;
         }
 
@@ -174,10 +153,15 @@ public class EntityModel {
                     : new CompositeEntityValidator()
                     .addValidator(new GeneratedValueValidator())
                     .addValidator(new PrimaryKeyValidator());
-            ImportProcessor effectiveImportProcessor = importProcessor != null ? importProcessor : new ImportProcessor();
-            PrimaryKeyProcessor effectivePrimaryKeyProcessor = primaryKeyProcessor != null ? primaryKeyProcessor : new PrimaryKeyProcessor();
+            CompositeEntityProcessor effectiveEntityProcessor = processor != null
+                    ? processor
+                    : new CompositeEntityProcessor()
+                    .addProcessor(new ImportProcessor())
+                    .addProcessor(new PrimaryKeyProcessor())
+                    .addProcessor(new TypeProcessor());
 
-            EntityModel entity = new EntityModel(effectiveValidator, effectiveImportProcessor, effectivePrimaryKeyProcessor);
+
+            EntityModel entity = new EntityModel(effectiveValidator, effectiveEntityProcessor);
             entity.setName(name);
             entity.getFields().addAll(fields);
             entity.validate();
@@ -254,8 +238,7 @@ public class EntityModel {
      * @throws IllegalDSLInputException if validation fails
      */
     public void validate() throws IllegalDSLInputException {
-        validator.validate(this);
-        primaryKeyProcessor.processPrimaryKey(this);
-        importProcessor.processImports(this);
+        entityProcessor.process(this);
+        entityValidator.validate(this);
     }
 }

@@ -9,14 +9,14 @@ import java.util.Set;
  * Processes entity fields and determines required imports.
  * Analyzes field modifiers and types to collect necessary import statements.
  */
-public class ImportProcessor {
+public class ImportProcessor implements EntityProcessor {
 
     /**
      * Processes an entity and populates its import set based on field modifiers and types.
      *
      * @param entity the entity model to process
      */
-    public void processImports(EntityModel entity) {
+    public void process(EntityModel entity) {
         Set<String> imports = entity.getImports();
 
         for (FieldModel field : entity.getFields()) {

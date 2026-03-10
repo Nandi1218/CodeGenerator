@@ -3,8 +3,10 @@ package nandi.project.validation;
 import nandi.project.exception.IllegalDSLInputException;
 import nandi.project.model.EntityModel;
 import nandi.project.model.FieldModel;
+import nandi.project.processor.CompositeEntityProcessor;
 import nandi.project.processor.ImportProcessor;
 import nandi.project.processor.PrimaryKeyProcessor;
+import nandi.project.processor.TypeProcessor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -103,8 +105,7 @@ class EntityValidationTest {
 
         EntityModel entity = new EntityModel(
             compositeValidator,
-            new ImportProcessor(),
-            new PrimaryKeyProcessor()
+            new CompositeEntityProcessor().addProcessor(new ImportProcessor()).addProcessor(new PrimaryKeyProcessor()).addProcessor(new TypeProcessor())
         );
         entity.setName("InvalidName");
 
@@ -121,8 +122,8 @@ class EntityValidationTest {
         field.setType("String");
         entity.getFields().add(field);
 
-        PrimaryKeyProcessor processor = new PrimaryKeyProcessor();
-        processor.processPrimaryKey(entity);
+        CompositeEntityProcessor processor = new CompositeEntityProcessor().addProcessor( new PrimaryKeyProcessor());
+        processor.process(entity);
 
         // Should have 2 fields now: default id + name
         assertEquals(2, entity.getFields().size());
@@ -148,7 +149,7 @@ class EntityValidationTest {
         entity.getFields().add(field2);
 
         PrimaryKeyProcessor processor = new PrimaryKeyProcessor();
-        processor.processPrimaryKey(entity);
+        processor.process(entity);
 
         // Primary key should be first
         assertEquals("customId", entity.getFields().getFirst().getName());
@@ -167,7 +168,7 @@ class EntityValidationTest {
         entity.getFields().add(field);
 
         ImportProcessor processor = new ImportProcessor();
-        processor.processImports(entity);
+        processor.process(entity);
 
         assertTrue(entity.getImports().contains("jakarta.validation.constraints.*"));
     }
@@ -184,7 +185,7 @@ class EntityValidationTest {
         entity.getFields().add(field);
 
         ImportProcessor processor = new ImportProcessor();
-        processor.processImports(entity);
+        processor.process(entity);
 
         assertTrue(entity.getImports().contains("java.util.List"));
     }
