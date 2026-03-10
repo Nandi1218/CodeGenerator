@@ -7,6 +7,7 @@ import nandi.project.validation.CompositeEntityValidator;
 import nandi.project.validation.GeneratedValueValidator;
 import nandi.project.validation.PrimaryKeyValidator;
 
+import javax.xml.validation.Validator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +15,6 @@ import java.util.Set;
 
 /**
  * Represents an entity parsed from the DSL, including its name and fields.
- * Provides validation and processing capabilities through SOLID-compliant components.
  */
 public class EntityModel {
     private String name;
@@ -24,6 +24,7 @@ public class EntityModel {
     private final CompositeEntityValidator validator;
     private final ImportProcessor importProcessor;
     private final PrimaryKeyProcessor primaryKeyProcessor;
+
 
     /**
      * Creates a new EntityModel with default validators and processors.
@@ -38,7 +39,6 @@ public class EntityModel {
 
     /**
      * Creates a new EntityModel with custom validators and processors.
-     * Allows for dependency injection and testing.
      *
      * @param validator the validator to use for entity validation
      * @param importProcessor the processor for managing imports
@@ -52,6 +52,147 @@ public class EntityModel {
         this.primaryKeyProcessor = primaryKeyProcessor;
     }
 
+    /**
+     * Creates a new builder for constructing a validated EntityModel.
+     *
+     * <p>The builder provides a fluent API for constructing entities with automatic validation
+     * at build time, ensuring no invalid entities can be created.
+     *
+     * @return a new Builder instance
+     */
+    public static EntityBuilder builder() {
+        return new EntityBuilder();
+    }
+
+    /**
+     * Builder for constructing validated EntityModel instances.
+     *
+     * <p>This builder enforces a fluent interface for entity construction and ensures
+     * validation is automatically applied during the build process. It provides optional
+     * dependency injection points for custom validators and processors, falling back to
+     * defaults if not specified.
+     *
+     * <p>Example usage:
+     * <pre>
+     *     EntityModel entity = EntityModel.builder()
+     *         .name("User")
+     *         .addField(fieldModel)
+     *         .build();
+     * </pre>
+     *
+     * @see EntityModel
+     */
+    public static final class EntityBuilder {
+        private String name;
+        private final List<FieldModel> fields = new ArrayList<>();
+        private CompositeEntityValidator validator;
+        private ImportProcessor importProcessor;
+        private PrimaryKeyProcessor primaryKeyProcessor;
+
+        /**
+         * Sets the entity name.
+         *
+         * <p>The name will be normalized (first character capitalized) during build.
+         *
+         * @param name the entity name
+         * @return this builder for method chaining
+         */
+        public EntityBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        /**
+         * Adds a field to the entity.
+         *
+         * @param field the field model to add
+         * @return this builder for method chaining
+         */
+        public EntityBuilder addField(FieldModel field) {
+            this.fields.add(field);
+            return this;
+        }
+
+        /**
+         * Provides a custom validator for the entity.
+         *
+         * @param validator the composite validator to use
+         * @return this builder for method chaining
+         */
+        public EntityBuilder validator(CompositeEntityValidator validator) {
+            this.validator = validator;
+            return this;
+        }
+
+        /**
+         * Provides a custom import processor for the entity.
+         *
+         * <p>Optional. If not specified, a default ImportProcessor will be used.
+         *
+         * @param importProcessor the import processor to use
+         * @return this builder for method chaining
+         */
+        public EntityBuilder importProcessor(ImportProcessor importProcessor) {
+            this.importProcessor = importProcessor;
+            return this;
+        }
+
+        /**
+         * Provides a custom primary key processor for the entity.
+         *
+         * <p>Optional. If not specified, a default PrimaryKeyProcessor will be used.
+         *
+         * @param primaryKeyProcessor the primary key processor to use
+         * @return this builder for method chaining
+         */
+        public EntityBuilder primaryKeyProcessor(PrimaryKeyProcessor primaryKeyProcessor) {
+            this.primaryKeyProcessor = primaryKeyProcessor;
+            return this;
+        }
+
+        /**
+         * Builds and validates the EntityModel.
+         *
+         * <p>This method constructs an EntityModel with the accumulated configuration,
+         * applies defaults for any unspecified validators or processors, sets the entity name,
+         * adds all fields, and invokes validation to ensure the entity is valid.
+         *
+         * <p>Validation steps performed during build:
+         * <ul>
+         *   <li>Validates generated value field types</li>
+         *   <li>Validates primary key constraints</li>
+         *   <li>Processes primary key field and moves it to first position</li>
+         *   <li>Processes and collects required imports</li>
+         * </ul>
+         *
+         * @return a validated EntityModel instance
+         * @throws IllegalDSLInputException if validation fails during entity construction
+         */
+        public EntityModel build() {
+            CompositeEntityValidator effectiveValidator = validator != null
+                    ? validator
+                    : new CompositeEntityValidator()
+                    .addValidator(new GeneratedValueValidator())
+                    .addValidator(new PrimaryKeyValidator());
+            ImportProcessor effectiveImportProcessor = importProcessor != null ? importProcessor : new ImportProcessor();
+            PrimaryKeyProcessor effectivePrimaryKeyProcessor = primaryKeyProcessor != null ? primaryKeyProcessor : new PrimaryKeyProcessor();
+
+            EntityModel entity = new EntityModel(effectiveValidator, effectiveImportProcessor, effectivePrimaryKeyProcessor);
+            entity.setName(name);
+            entity.getFields().addAll(fields);
+            entity.validate();
+            return entity;
+        }
+    }
+
+    /**
+     * Returns the set of imports required by this entity.
+     *
+     * <p>Imports are collected during validation and include annotations, utilities,
+     * and custom type imports needed for the generated entity class.
+     *
+     * @return the set of import statements
+     */
     public Set<String> getImports() {
         return imports;
     }
@@ -59,7 +200,7 @@ public class EntityModel {
     /**
      * Returns the entity name.
      *
-     * @return entity name
+     * @return entity name (capitalized)
      */
     public String getName() {
         return name;
@@ -67,6 +208,8 @@ public class EntityModel {
 
     /**
      * Sets the entity name.
+     *
+     * <p>The provided name is normalized by capitalizing the first character.
      *
      * @param name entity name
      */
@@ -77,18 +220,28 @@ public class EntityModel {
     /**
      * Returns the list of entity fields.
      *
-     * @return field models
+     * <p>The primary key field, if present, is guaranteed to be at index 0.
+     * If no primary key exists, a default `id: Integer` field is added during validation.
+     *
+     * @return field models in order (primary key first if present)
      */
     public List<FieldModel> getFields() {
         return fields;
     }
+
+    /**
+     * Returns the type of the primary key field.
+     *
+     * <p>The primary key is guaranteed to be the first field in the entity.
+     *
+     * @return the primary key field type (e.g., "Integer", "Long")
+     */
     public String getKeyType() {
         return fields.getFirst().getType();
     }
 
     /**
-     * Validates the entity model and performs necessary processing.
-     * Delegates to specialized validators and processors following SOLID principles.
+     * Validates the entity using the configured validators and processors.
      *
      * <p>Validation steps:
      * <ul>
@@ -104,58 +257,5 @@ public class EntityModel {
         validator.validate(this);
         primaryKeyProcessor.processPrimaryKey(this);
         importProcessor.processImports(this);
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder {
-        private String name;
-        private final List<FieldModel> fields = new ArrayList<>();
-        private CompositeEntityValidator validator;
-        private ImportProcessor importProcessor;
-        private PrimaryKeyProcessor primaryKeyProcessor;
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder addField(FieldModel field) {
-            this.fields.add(field);
-            return this;
-        }
-
-        public Builder validator(CompositeEntityValidator validator) {
-            this.validator = validator;
-            return this;
-        }
-
-        public Builder importProcessor(ImportProcessor importProcessor) {
-            this.importProcessor = importProcessor;
-            return this;
-        }
-
-        public Builder primaryKeyProcessor(PrimaryKeyProcessor primaryKeyProcessor) {
-            this.primaryKeyProcessor = primaryKeyProcessor;
-            return this;
-        }
-
-        public EntityModel build() {
-            CompositeEntityValidator effectiveValidator = validator != null
-                ? validator
-                : new CompositeEntityValidator()
-                    .addValidator(new GeneratedValueValidator())
-                    .addValidator(new PrimaryKeyValidator());
-            ImportProcessor effectiveImportProcessor = importProcessor != null ? importProcessor : new ImportProcessor();
-            PrimaryKeyProcessor effectivePrimaryKeyProcessor = primaryKeyProcessor != null ? primaryKeyProcessor : new PrimaryKeyProcessor();
-
-            EntityModel entity = new EntityModel(effectiveValidator, effectiveImportProcessor, effectivePrimaryKeyProcessor);
-            entity.setName(name);
-            entity.getFields().addAll(fields);
-            entity.validate();
-            return entity;
-        }
     }
 }
