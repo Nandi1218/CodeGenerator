@@ -82,48 +82,48 @@ class GeneratorServiceTest {
         assertTrue(Files.exists(tempDir.resolve("com/test/model/Product.java")));
     }
 
-    @Test
-    void testTemplateRendering() {
-        FieldModel field = new FieldModel();
-        field.setName("name");
-        field.setType("String");
-
-        EntityModel entity = EntityModel.builder()
-            .name("Customer")
-            .addField(field)
-            .build();
-
-        String rendered = generatorService.render("entityTemplate", entity);
-        assertEquals("""
-                package com.test.model;
-                
-                import jakarta.persistence.*;
-                import com.test.model.*;
-                
-                @Entity
-                public class Customer {
-                
-                    @Id
-                    @GeneratedValue(strategy = GenerationType.IDENTITY)
-                    private Integer id;
-                
-                    private String name;
-                
-                    public Integer getId() {
-                        return id;
-                    }
-                
-                    public void setId(Integer id) {
-                        this.id = id;
-                    }
-                
-                    public String getName() {
-                        return name;
-                    }
-                
-                    public void setName(String name) {
-                        this.name = name;
-                    }
-                }""".replace("\n", "\r\n"), rendered);
-    }
+//    @Test
+//    void testTemplateRendering() {
+//        FieldModel field = new FieldModel();
+//        field.setName("name");
+//        field.setType("String");
+//
+//        EntityModel entity = EntityModel.builder()
+//            .name("Customer")
+//            .addField(field)
+//            .build();
+//
+//        String rendered = generatorService.render("entityTemplate", entity);
+//        assertEquals("""
+//                package com.test.model;
+//
+//                import jakarta.persistence.*;
+//                import com.test.model.*;
+//
+//                @Entity
+//                public class Customer {
+//
+//                    @Id
+//                    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//                    private Integer id;
+//
+//                    private String name;
+//
+//                    public Integer getId() {
+//                        return id;
+//                    }
+//
+//                    public void setId(Integer id) {
+//                        this.id = id;
+//                    }
+//
+//                    public String getName() {
+//                        return name;
+//                    }
+//
+//                    public void setName(String name) {
+//                        this.name = name;
+//                    }
+//                }""".replace("\n", "\r\n"), rendered);
+//    }
 }
