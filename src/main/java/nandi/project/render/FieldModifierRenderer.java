@@ -7,8 +7,7 @@ import nandi.project.model.ModifierKind;
  * Renders typed field modifiers into generated annotation strings.
  */
 public final class FieldModifierRenderer {
-    private FieldModifierRenderer() {
-    }
+    private FieldModifierRenderer() {}
 
     public static String render(FieldModifier modifier) {
         return switch (modifier.getKind()) {
